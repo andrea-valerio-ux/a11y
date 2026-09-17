@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<style>
+  body{margin:0;font-family:Georgia,serif;color:#222;line-height:1.5}
+  header{background:#0b2545;color:#fff;padding:12px 24px}
+  header a{color:#fff;margin-right:16px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:8px;top:8px;background:#fff;color:#000;padding:8px}
+  main{padding:24px;max-width:720px}
+  a:focus-visible,button:focus-visible{outline:3px solid #0b2545;outline-offset:2px}
+  button{font:inherit;padding:10px 16px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><nav aria-label="Main"><ul style="list-style:none;display:flex;gap:16px;margin:0;padding:0"><li><a href="/demo/">Home</a></li><li><a href="/demo/about.html">About</a></li></ul></nav></header>
+<main id="main">
+  <h1>About the practice site</h1>
+  <p>This page is mostly fine. It exists so a multi-page scan has a second page to visit and a second title to compare. Its title is the same as the home page, which is a problem the scanner should report once for each page.</p>
+  <h2 id="team">The team</h2>
+  <p>Short sentences. Plain words. A heading for each part. That is most of what plain language asks for.</p>
+  <figure><img src="photo.svg" alt="A blue rectangle standing in for a photograph" width="200" height="80"><figcaption>A stand-in picture.</figcaption></figure>
+  <h2 id="contact">Contact</h2>
+  <form action="#" onsubmit="return false">
+    <label for="em">Email address</label> <input id="em" type="email" name="email" autocomplete="email">
+    <button type="submit">Send</button>
+  </form>
+  <table>
+    <caption>Plans and prices</caption>
+    <thead><tr><th scope="col">Plan</th><th scope="col">Price</th></tr></thead>
+    <tbody><tr><td>Basic</td><td>$10</td></tr><tr><td>Pro</td><td>$25</td></tr></tbody>
+  </table>
+</main>
+<footer style="padding:16px 24px"><p>Practice site.</p></footer>
+</body>
+</html>

@@ -1,0 +1,131 @@
+# One scan per run. Started by web/api.php on andryta.com (or by hand from the
+# Actions tab), it scans the site with the command-line tool, builds the six
+# reports and uploads them to the website's runs/ folder over FTP or SFTP.
+#
+# Secrets (repository Settings → Secrets and variables → Actions):
+#   FTP_HOST       ftp.andryta.com or the server's host name / IP
+#   FTP_USER       an FTP account whose home is public_html/technology/a11y/runs
+#   FTP_PASSWORD   its password
+# Optional:
+#   FTP_PROTOCOL   ftp (default, upgraded to TLS) or sftp
+#   FTP_PORT       21 for ftp (default), 2222 for HostGator sftp
+#   FTP_DIR        folder inside the account to write to (default: its home, ".")
+#   FTP_VERIFY     yes to insist on a valid TLS certificate (default: no; shared
+#                  hosts usually present the server's own certificate)
+name: Scan
+run-name: "Scan ${{ inputs.url }} · ${{ inputs.request_id }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Web address to scan
+        required: true
+        type: string
+      pages:
+        description: How many pages to discover and scan (1 to 10)
+        default: "1"
+        type: string
+      widths:
+        description: Viewport widths, comma separated
+        default: "1440,390"
+        type: string
+      level:
+        description: Conformance level, AA or AAA
+        default: AA
+        type: string
+      request_id:
+        description: Id given by the web form (leave as is when starting by hand)
+        default: manual
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      URL: ${{ inputs.url }}
+      PAGES: ${{ inputs.pages }}
+      WIDTHS: ${{ inputs.widths }}
+      LEVEL: ${{ inputs.level }}
+      REQUEST_ID: ${{ inputs.request_id }}
+      # The upload step is skipped when no FTP host is configured (the report
+      # is then only kept as a workflow artifact).
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+      FTP_USER: ${{ secrets.FTP_USER }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
+      FTP_PORT: ${{ secrets.FTP_PORT }}
+      FTP_DIR: ${{ secrets.FTP_DIR }}
+      FTP_VERIFY: ${{ secrets.FTP_VERIFY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install the scanner's dependency
+        run: npm ci --omit=dev --no-audit --no-fund
+
+      - name: Install Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Check the machine
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: node bin/a11y.js doctor
+
+      - name: Scan
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          # Exit code 1 means "critical findings", which is a result, not a failure.
+          set +e
+          node bin/a11y.js scan "$URL" --pages "$PAGES" --widths "$WIDTHS" --level "$LEVEL" --out run
+          code=$?
+          set -e
+          if [ "$code" -gt 1 ]; then echo "scan failed with code $code"; exit "$code"; fi
+
+      - name: Build the reports
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: node bin/a11y.js report run
+
+      - name: Prepare the upload folder
+        run: node scripts/ci/prepare-upload.js run upload "$REQUEST_ID" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload to the website
+        if: ${{ env.FTP_HOST != '' }}
+        run: |
+          sudo apt-get install -y -q lftp >/dev/null
+          PROTO="${FTP_PROTOCOL:-ftp}"
+          PORT="${FTP_PORT:-21}"
+          DIR="${FTP_DIR:-.}"
+          VERIFY="${FTP_VERIFY:-no}"
+          lftp -u "$FTP_USER,$FTP_PASSWORD" "$PROTO://$FTP_HOST:$PORT" -e "
+            set ssl:verify-certificate $VERIFY;
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            set net:timeout 30;
+            mirror -R --no-perms --verbose=1 upload/ \"$DIR\";
+            bye"
+          echo "Uploaded to $FTP_HOST:$DIR" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep a copy for a week
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ inputs.request_id }}
+          path: upload
+          retention-days: 7
+          if-no-files-found: ignore

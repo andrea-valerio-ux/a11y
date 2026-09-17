@@ -1,0 +1,34 @@
+# systemd unit: keeps the scanner running and restarts it after a reboot.
+# Installed to /etc/systemd/system/a11y-scanner.service by deploy/install-ubuntu.sh.
+#
+#   sudo systemctl status a11y-scanner      is it running?
+#   sudo journalctl -u a11y-scanner -n 50   what did it print?
+#   sudo systemctl restart a11y-scanner     restart (this mints a new link)
+
+[Unit]
+Description=Accessibility Checklist Scanner
+After=network.target
+
+[Service]
+Type=simple
+User=a11y
+Group=a11y
+WorkingDirectory=/opt/a11y-checklist-scanner
+Environment=NODE_ENV=production
+Environment=CHROME_PATH=/usr/bin/google-chrome-stable
+# --no-open: there is no desktop browser to open on a server.
+# --port 4173: fixed, so the Nginx config always points at the right place.
+ExecStart=/usr/bin/node bin/a11y.js ui --no-open --port 4173 --runs /var/lib/a11y-scanner/runs
+Restart=on-failure
+RestartSec=5
+# Chrome needs a generous file limit and some room for screenshots.
+LimitNOFILE=65536
+# What the scanner may write to: its runs folder and temporary files.
+ReadWritePaths=/var/lib/a11y-scanner /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

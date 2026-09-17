@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Home</title>
+<style>
+  :root{--brand:#0b4bff;--brand-dark:#0b2545;--ink:#222222;--surface:#ffffff;--font-body:Georgia,serif;--text-base:16px;--space-4:16px;--radius:4px;--shadow-card:0 1px 2px rgba(0,0,0,.1);--motion-fast:150ms ease}
+  body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--surface);line-height:1.5}
+  header{background:var(--brand-dark);color:#fff;padding:12px 24px;display:flex;gap:24px;align-items:center}
+  header a{color:#8da9c4;text-decoration:none;font-size:14px}
+  .hero{position:relative;height:320px;background:url('hero.svg') center/cover;display:flex;align-items:center;justify-content:center}
+  .hero h2{color:#e8f1ff;font-size:36px;margin:0;text-align:center;font-weight:400}
+  main{padding:24px}
+  .row{display:flex;gap:24px}
+  .card{flex:1;padding:16px;border:1px solid #eee}
+  .faint{color:#9a9a9a;font-size:14px}
+  .fainter{color:#bbbbbb;font-size:13px}
+  .justified{text-align:justify;max-width:520px}
+  .subhead{font-size:22px;font-weight:700;margin:24px 0 8px}
+  button,.btn{font:inherit;padding:8px 14px;border:0;background:var(--brand);color:#fff;cursor:pointer;border-radius:var(--radius)}
+  button:focus,.btn:focus,a:focus,input:focus,select:focus{outline:none}
+  .icon{width:18px;height:18px;padding:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;margin-right:2px}
+  .icon svg{width:16px;height:16px;fill:#2f4d70}
+  input,select{font:inherit;padding:6px 8px;border:1px solid #e3e3e3;border-radius:3px}
+  .radios label{display:block}
+  .fake-list a{display:block;margin:2px 0}
+  .pulse{width:60px;height:60px;background:#ff8800;border-radius:50%;animation:pulse .25s infinite alternate;display:inline-block}
+  .drift{width:120px;height:20px;background:#5b5fc7;animation:drift 3s infinite linear;margin:10px 0}
+  @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.4)}}
+  @keyframes drift{from{transform:translateX(0)}to{transform:translateX(200px)}}
+  ::selection{background:#4a4a5a;color:#3c3c48}
+  .wide{width:600px;background:#f4f4f4;padding:8px;font-size:13px}
+  footer{margin-top:40px;padding:16px 24px;color:#777;font-size:13px;border-top:1px solid #eee}
+  table{border-collapse:collapse}td{border:1px solid #ddd;padding:6px 10px}
+  .cardlink{color:#2c2c48;text-decoration:none}
+  .clip{height:26px;overflow:hidden;margin:12px 0}.clip p{margin:0}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.svg" width="120" height="32">
+  <a href="/demo/">Home</a>
+  <a href="/demo/about.html">About</a>
+  <a href="/demo/about.html#team" target="_blank">Team</a>
+  <a href="https://example.com" title="Our partner"><img src="partner.svg" alt="" width="60" height="20"></a>
+  <span style="display:inline-flex;gap:0"><button class="icon" title="Search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="#2f4d70" stroke-width="2"/><path d="M11 11l4 4" stroke="#2f4d70" stroke-width="2"/></svg></button><button class="icon"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 8h12M2 13h12" stroke="#2f4d70" stroke-width="2"/></svg></button></span>
+</header>
+
+<div class="hero">
+  <h2>Beyond the shock: managing exposure in the wake of change</h2>
+</div>
+
+<main>
+  <h1>Welcome to the practice page</h1>
+  <p class="faint">A page with deliberate accessibility problems, so you can see what the scanner reports and how each problem is shown. Nothing here is real.</p>
+  <p class="fainter">This sentence is set in a very pale gray that most people struggle to read, and it sits on a plain white background.</p>
+
+  <div class="subhead">A heading that is not a heading</div>
+  <p class="justified">Notwithstanding the aforementioned considerations, the operationalisation of multifaceted organizational resilience paradigms necessitates a comprehensive re-evaluation of interdependent infrastructural contingencies, particularly insofar as the heterogeneity of stakeholder expectations engenders substantial complexities in the prioritization of remediation initiatives across geographically distributed operational environments. Consequently, practitioners are encouraged to click the green button on the right to proceed with the assessment, whereupon the subsequent phases of the methodology will be elucidated in considerable detail for the benefit of all participants.</p>
+
+  <h3>Skipped straight to level three</h3>
+  <div class="row">
+    <div class="card"><p>Card one. Read the <a class="cardlink" href="/demo/about.html">resilience report</a> for details. <a href="/demo/about.html">Read more</a></p></div>
+    <div class="card"><p>Card two. <a href="/demo/about.html#two">Read more</a></p><img src="photo.svg" alt="photo.svg" width="200" height="80"></div>
+    <div class="card"><p>Card three. <a href="#">Read more</a></p><span onclick="alert('hi')" style="cursor:pointer;color:#0b4bff">Open panel</span></div>
+  </div>
+  <div class="clip"><p>This sentence sits in a box with a fixed height and hidden overflow, so at 200% zoom its second line is cut off.</p></div>
+
+  <div class="fake-list">
+    <a href="/demo/about.html">Products</a>
+    <a href="/demo/about.html#services">Services</a>
+    <a href="/demo/about.html#careers">Careers</a>
+    <a href="/demo/about.html#contact">Contact</a>
+  </div>
+  <p>• First typed bullet<br>• Second typed bullet<br>• Third typed bullet</p>
+  <p>- Another point</p><p>- And another</p>
+
+  <h3 id="dup">Sign up</h3>
+  <form action="#" onsubmit="return false">
+    <input type="text" placeholder="Your email address" id="dup" name="mail" autofocus>
+    <input type="text" name="fullname">
+    <select name="plan"><option>Basic</option><option>Pro</option></select>
+    <div class="radios">
+      <label><input type="radio" name="freq" value="w"> Weekly</label>
+      <label><input type="radio" name="freq" value="m"> Monthly</label>
+    </div>
+    <input type="text" name="phone" placeholder="Phone" aria-invalid="true" style="border-color:#c33">
+    <a href="#" class="btn" tabindex="3">Subscribe</a>
+    <div role="button" class="btn">Reset</div>
+  </form>
+
+  <table>
+    <tr><td><b>Plan</b></td><td><b>Price</b></td><td><b>Seats</b></td></tr>
+    <tr><td>Basic</td><td>$10</td><td>1</td></tr>
+    <tr><td>Pro</td><td>$25</td><td>5</td></tr>
+  </table>
+
+  <h3>Motion</h3>
+  <span class="pulse"></span>
+  <div class="drift"></div>
+  <video autoplay muted loop playsinline width="320" height="180" poster="photo.svg"><source src="clip.webm" type="video/webm"></video>
+  <iframe src="about:blank" width="200" height="60"></iframe>
+
+  <div class="wide">This box is fixed at 600 pixels wide, so on a phone the whole page has to scroll sideways to read it to the end of the line, which is exactly what the reflow criterion forbids.</div>
+  <div style="position:absolute;left:-9999px"><a href="/demo/about.html">Hidden menu link one</a> <a href="/demo/about.html">Hidden menu link two</a></div>
+</main>
+<footer>
+  <p>Practice page. Cookie consent settings <a href="/demo/about.html" style="color:#8a8a8a;text-decoration:none">here</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility Checklist Scanner | Andryta</title>
+<meta name="description" content="Scan a website against The A11Y Project checklist. Every finding comes with a screenshot, an explanation, the rule and a link to it.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#f4f6f9;--card:#ffffff;--ink:#14213d;--muted:#5b6478;--line:#d7dce5;--accent:#1d4ed8;--accent-ink:#ffffff;--ok:#0f7b3e;--ok-bg:#e6f6ec;--warn:#9a5b00;--warn-bg:#fff4e0;--down:#b42318;--down-bg:#fdecea;--chip:#eef2f8;--crit:#b42318;--ser:#c2410c;--mod:#a16207;--min:#4b5563}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1420;--card:#171d2b;--ink:#eef1f7;--muted:#a3adc2;--line:#2a3345;--accent:#8ab4ff;--accent-ink:#0f1420;--ok:#5fd38d;--ok-bg:#12331f;--warn:#f2c069;--warn-bg:#3a2a0d;--down:#ff8a80;--down-bg:#3d1613;--chip:#1f2737;--crit:#ff8a80;--ser:#fdba74;--mod:#fde047;--min:#cbd5e1}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--card);color:var(--ink);padding:8px 12px;border-radius:8px;border:2px solid var(--accent)}
+.skip:focus{left:8px;z-index:10}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:32px 16px 64px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.mark{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:800;font-size:14px;letter-spacing:.02em}
+header.top h1{font-size:clamp(22px,3.5vw,30px);margin:0;line-height:1.2}
+header.top p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;min-width:0}
+.hero{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;align-items:start}
+@media (max-width:820px){.hero{grid-template-columns:1fr}}
+h2{margin:0 0 6px;font-size:22px;line-height:1.2}
+.sub{margin:0 0 16px;color:var(--muted);font-size:15px}
+label.f{display:block;margin:0 0 14px}
+.lb{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+input[type=text],input[type=password],select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+fieldset{border:0;padding:0;margin:0 0 14px;min-width:0}
+legend{font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
+.chk{display:inline-flex;align-items:center;gap:8px;margin:4px 14px 4px 0;font-size:15px}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:6px 0 16px;font-size:15px}
+.consent input{width:18px;height:18px;flex:none;margin-top:3px;accent-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 20px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.btn.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.btn.small{min-height:38px;padding:7px 14px;font-size:14px;border-radius:10px}
+.btn:hover:not(:disabled):not([aria-disabled="true"]){filter:brightness(1.08)}
+.err{color:var(--down);font-weight:600;margin:0 0 12px}
+.err:empty{display:none}
+.small{font-size:14px;color:var(--muted);margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.state{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-weight:600;background:var(--chip);margin-bottom:14px}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+.state[data-s="up"]{background:var(--ok-bg);color:var(--ok)}.state[data-s="up"] .dot{background:var(--ok)}
+.state[data-s="busy"]{background:var(--warn-bg);color:var(--warn)}.state[data-s="busy"] .dot{background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
+.state[data-s="checking"] .dot{background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
+.state[data-s="down"]{background:var(--down-bg);color:var(--down)}.state[data-s="down"] .dot{background:var(--down)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none!important}}
+ol.steps{list-style:none;margin:0 0 16px;padding:0}
+ol.steps li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:15px;color:var(--muted)}
+ol.steps li:first-child{border-top:0}
+ol.steps li .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--chip);font-size:12px;font-weight:700;flex:none;color:var(--muted)}
+ol.steps li[data-st="active"]{color:var(--ink);font-weight:600}ol.steps li[data-st="active"] .n{background:var(--warn-bg);color:var(--warn)}
+ol.steps li[data-st="done"] .n{background:var(--ok-bg);color:var(--ok)}
+ol.steps li[data-st="failed"] .n{background:var(--down-bg);color:var(--down)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
+.kpi{background:var(--chip);border-radius:10px;padding:8px 10px;text-align:center}
+.kpi b{display:block;font-size:20px;line-height:1.1}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.crit b{color:var(--crit)}.kpi.ser b{color:var(--ser)}.kpi.mod b{color:var(--mod)}.kpi.min b{color:var(--min)}
+.files{display:flex;flex-wrap:wrap;gap:8px}
+.files a{font-size:14px;font-weight:600;text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--accent);background:var(--card)}
+.files a.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+h2.sec{font-size:22px;margin:40px 0 6px}
+.lead{margin:0 0 16px;color:var(--muted)}
+.runs{display:grid;gap:12px}
+.run{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:start}
+@media (max-width:640px){.run{grid-template-columns:1fr}}
+.run h3{margin:0 0 2px;font-size:17px;word-break:break-all}
+.run .meta{font-size:14px;color:var(--muted);margin:0 0 8px}
+.run .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.tag.crit{color:var(--crit)}.tag.ser{color:var(--ser)}.tag.fail{background:var(--down-bg);color:var(--down)}.tag.pass{background:var(--ok-bg);color:var(--ok)}.tag.review{background:var(--warn-bg);color:var(--warn)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.pills button{font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.pills button small{font-weight:700;font-size:12px;background:var(--chip);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.pills button[aria-expanded="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.items{margin-top:16px}
+.items h3{margin:0 0 4px;font-size:18px}
+.items .close{float:right}
+.item{padding:14px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item h4{margin:0 0 4px;font-size:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.badge.yes{background:var(--ok-bg);color:var(--ok)}.badge.partial{background:var(--warn-bg);color:var(--warn)}
+.item p{margin:0;color:var(--muted);font-size:15px}
+.item .wc{font-size:13px;margin-top:4px}
+.how{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.how li{counter-increment:s;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.how li::before{content:counter(s,decimal-leading-zero);display:block;font-weight:800;color:var(--accent);margin-bottom:6px}
+.how strong{display:block;margin-bottom:4px}
+.how span{color:var(--muted);font-size:15px}
+footer{margin-top:48px;color:var(--muted);font-size:14px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+  <header class="top">
+    <span class="mark" aria-hidden="true">A11</span>
+    <div>
+      <h1>Accessibility Checklist Scanner</h1>
+      <p>Test a website against <a href="https://www.a11yproject.com/checklist/">The A11Y Project checklist</a>, with proof for every finding.</p>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <form class="card" id="scanform" aria-labelledby="scan-h" novalidate>
+        <h2 id="scan-h">New scan</h2>
+        <p class="sub">The scan runs on a free machine at GitHub and takes 3 to 6 minutes. The report appears here when it is done.</p>
+        <label class="f"><span class="lb">Web address</span><input type="text" class="mono" id="url" name="url" placeholder="https://example.com" autocomplete="url" spellcheck="false" inputmode="url" required></label>
+        <div class="row">
+          <label class="f"><span class="lb">Pages</span><select id="pages" name="pages"><option value="1">Just this page</option><option value="2">2 pages</option><option value="3">3 pages</option><option value="5">5 pages</option></select></label>
+          <label class="f"><span class="lb">Level</span><select id="level" name="level"><option value="AA">WCAG 2.2 AA</option><option value="AAA">WCAG 2.2 AAA</option></select></label>
+        </div>
+        <fieldset>
+          <legend>Screen widths</legend>
+          <label class="chk"><input type="checkbox" name="w" value="1440" checked> 1440 desktop</label>
+          <label class="chk"><input type="checkbox" name="w" value="1024"> 1024 laptop</label>
+          <label class="chk"><input type="checkbox" name="w" value="768"> 768 tablet</label>
+          <label class="chk"><input type="checkbox" name="w" value="390" checked> 390 phone</label>
+        </fieldset>
+        <label class="f" id="codewrap" hidden><span class="lb">Access code</span><input type="password" id="code" name="code" autocomplete="off"></label>
+        <label class="consent"><input type="checkbox" id="ok" name="ok"><span>I am authorized to test this site. A scan sends real traffic to it.</span></label>
+        <p class="err" id="err" role="alert"></p>
+        <div class="actions"><button class="btn" type="submit" id="go">Start scan</button></div>
+      </form>
+
+      <section class="card" aria-labelledby="status-h">
+        <h2 id="status-h">Status</h2>
+        <div class="state" id="state" data-s="checking" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="statetxt">Checking the service…</span></div>
+        <div id="job" hidden>
+          <ol class="steps" id="steps">
+            <li data-st=""><span class="n" aria-hidden="true">1</span><span>Requested</span></li>
+            <li data-st=""><span class="n" aria-hidden="true">2</span><span>Waiting for a free machine at GitHub</span></li>
+            <li data-st=""><span class="n" aria-hidden="true">3</span><span>Scanning the pages in Chrome</span></li>
+            <li data-st=""><span class="n" aria-hidden="true">4</span><span>Building and uploading the reports</span></li>
+            <li data-st=""><span class="n" aria-hidden="true">5</span><span>Done</span></li>
+          </ol>
+          <p class="small" id="jobline"></p>
+        </div>
+        <div id="result" hidden></div>
+        <p class="small" id="hint"></p>
+      </section>
+    </section>
+
+    <h2 class="sec" id="runs-h">Previous runs</h2>
+    <p class="lead" id="runs-lead">Every finished scan, newest first. Open the report or download the files.</p>
+    <div class="runs" id="runs" aria-labelledby="runs-h"></div>
+
+    <h2 class="sec" id="checks-h">What it checks</h2>
+    <p class="lead">The 16 sections of the checklist. Choose one to see its items and whether the scanner decides them by itself.</p>
+    <ul class="pills" id="pills" aria-label="Checklist sections"></ul>
+    <div class="card items" id="items" hidden tabindex="-1"></div>
+
+    <h2 class="sec">How it works</h2>
+    <ol class="how">
+      <li><strong>Enter a web address</strong><span>Pick the pages, the widths and the level, and confirm you may test the site.</span></li>
+      <li><strong>A machine at GitHub scans it</strong><span>Real Chrome, every page at every width: contrast, keyboard, forms, zoom, motion.</span></li>
+      <li><strong>The reports land here</strong><span>Web page with screenshots, Excel, Word, PDF, CSV and JSON.</span></li>
+      <li><strong>Fix, then scan again</strong><span>Each run keeps its own folder, so progress is easy to show.</span></li>
+    </ol>
+  </main>
+
+  <footer>
+    <p>Built on <a href="https://www.a11yproject.com/checklist/">The A11Y Project checklist</a> and the <a href="https://www.w3.org/WAI/WCAG22/quickref/">WCAG 2.2</a> criteria. A scan looks like an ordinary visit to the site being tested.</p>
+  </footer>
+</div>
+
+<script src="checklist.js"></script>
+<script>
+const API = 'api.php';
+const AUTO_LABEL = { yes: 'Automatic', partial: 'Partly automatic', no: 'Needs a person' };
+const LABEL = { html: 'Open the report', xlsx: 'Excel', docx: 'Word', pdf: 'PDF', csv: 'CSV', json: 'JSON' };
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); };
+const api = async (action, opts) => { const r = await fetch(`${API}?action=${action}${opts && opts.query ? '&' + opts.query : ''}`, { cache: 'no-store', method: opts && opts.body ? 'POST' : 'GET', headers: opts && opts.body ? { 'content-type': 'application/json' } : {}, body: opts && opts.body ? JSON.stringify(opts.body) : undefined }); let d = {}; try { d = await r.json(); } catch (e) { d = { error: 'The service answered with something that is not JSON (status ' + r.status + ').' }; } return { ok: r.ok, status: r.status, d }; };
+
+/* ---------- service state ---------- */
+let service = null;
+function setState(s, text) { $('state').dataset.s = s; $('statetxt').textContent = text; }
+async function ping() {
+  setState('checking', 'Checking the service…');
+  try {
+    const { ok, d } = await api('ping');
+    if (!ok) throw new Error(d.error || 'not ok');
+    service = d;
+    $('codewrap').hidden = !d.needsCode;
+    if (d.maxPages) { for (const o of $('pages').options) o.disabled = parseInt(o.value, 10) > d.maxPages; }
+    if (!d.configured) { setState('down', 'The service is not configured yet'); $('hint').textContent = 'api.php is here, but config.php is missing or still has the example token. See DEPLOY.md.'; $('go').disabled = true; return; }
+    setState('up', 'Ready to scan'); $('hint').textContent = `Up to ${d.maxScansPerHour} scans an hour and ${d.maxPages} pages per scan, to stay within GitHub's free minutes.`; $('go').disabled = false;
+  } catch (e) {
+    setState('down', 'The service is not reachable'); $('hint').textContent = 'api.php did not answer. If you opened this file from your computer, that is expected: it works once uploaded to the website.'; $('go').disabled = true;
+  }
+}
+
+/* ---------- start a scan ---------- */
+$('scanform').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('err').textContent = '';
+  const url = $('url').value.trim();
+  const widths = [...document.querySelectorAll('input[name=w]:checked')].map(i => i.value);
+  if (!url) { $('err').textContent = 'Type the web address to scan.'; $('url').focus(); return; }
+  if (!widths.length) { $('err').textContent = 'Choose at least one screen width.'; return; }
+  if (!$('ok').checked) { $('err').textContent = 'Confirm you are authorized to scan this site.'; $('ok').focus(); return; }
+  $('go').disabled = true;
+  const { ok, d } = await api('scan', { body: { url, pages: parseInt($('pages').value, 10), widths: widths.join(','), level: $('level').value, authorized: true, code: $('code').value } });
+  if (!ok) { $('err').textContent = d.error || 'The scan could not be started.'; $('go').disabled = false; return; }
+  remember(d.id, d.url);
+  watch(d.id, d.url, Date.now());
+});
+
+/* ---------- follow a scan ---------- */
+let poll = null;
+const STEP_FOR = { queued: 2, running: 3, uploading: 4, done: 5 };
+let reached = 'queued';   // the last step the scan got to, so a failure marks that step
+function paintSteps(state) {
+  if (STEP_FOR[state]) reached = state;
+  const cur = STEP_FOR[state] || STEP_FOR[reached] || 1;
+  [...$('steps').children].forEach((li, i) => { const n = i + 1; li.dataset.st = state === 'failed' || state === 'lost' ? (n < cur ? 'done' : n === cur ? 'failed' : '') : n < cur ? 'done' : n === cur ? (state === 'done' ? 'done' : 'active') : ''; });
+}
+function remember(id, url) { try { localStorage.setItem('a11y-job', JSON.stringify({ id, url, at: Date.now() })); } catch (e) { /* fine */ } }
+function forget() { try { localStorage.removeItem('a11y-job'); } catch (e) { /* fine */ } }
+function watch(id, url, startedAt) {
+  clearInterval(poll);
+  $('job').hidden = false; $('result').hidden = true; $('result').innerHTML = '';
+  setState('busy', 'Scan in progress'); paintSteps('queued');
+  $('jobline').textContent = `${url} · requested ${fmtDate(new Date(startedAt).toISOString())}`;
+  let lastState = 'queued';
+  const tick = async () => {
+    const { ok, d } = await api('status', { query: 'id=' + encodeURIComponent(id) });
+    if (!ok && d.state !== 'unknown') return;                       // a hiccup; try again next time
+    const state = d.state || 'unknown';
+    const mins = Math.max(0, Math.round((Date.now() - startedAt) / 60000));
+    if (state === 'done') {
+      clearInterval(poll); paintSteps('done'); forget();
+      setState('up', 'Scan finished'); $('jobline').textContent = `${url} · finished ${fmtDate(d.run.finishedAt)}`;
+      $('result').innerHTML = resultHTML(d.run); $('result').hidden = false; $('go').disabled = false;
+      loadRuns(); $('result').focus?.();
+      return;
+    }
+    if (state === 'failed' || state === 'lost' || state === 'unknown') {
+      clearInterval(poll); paintSteps(state === 'unknown' ? 'lost' : state); forget();
+      setState('down', state === 'failed' ? 'The scan failed' : 'The scan was lost');
+      $('result').innerHTML = `<p class="err">${esc(d.error || 'The machine at GitHub reported a failure. The most common cause is a site that blocks automated visits.')}</p>${d.runUrl ? `<p class="small"><a href="${esc(d.runUrl)}" rel="noopener">Run log on GitHub</a> (visible to the repository owner).</p>` : ''}`;
+      $('result').hidden = false; $('go').disabled = false;
+      return;
+    }
+    if (state !== lastState) { lastState = state; paintSteps(state); }
+    $('jobline').textContent = `${url} · ${state === 'queued' ? 'waiting for a machine' : state === 'running' ? 'scanning' : 'uploading the reports'} · ${mins} min`;
+    if (mins > 40) { clearInterval(poll); setState('down', 'This is taking too long'); $('result').innerHTML = '<p class="err">No result after 40 minutes. Check the Actions tab of the repository.</p>'; $('result').hidden = false; $('go').disabled = false; forget(); }
+  };
+  tick(); poll = setInterval(tick, 8000);
+}
+function kpis(run) {
+  const s = run.summary || {}, c = run.checklist || {};
+  return `<div class="kpis" role="group" aria-label="Findings by severity"><div class="kpi crit"><b>${s.critical || 0}</b><span>critical</span></div><div class="kpi ser"><b>${s.serious || 0}</b><span>serious</span></div><div class="kpi mod"><b>${s.moderate || 0}</b><span>moderate</span></div><div class="kpi min"><b>${s.minor || 0}</b><span>minor</span></div></div>
+  <p class="small" style="margin-bottom:12px">Checklist: <strong>${c.fail || 0}</strong> failing · <strong>${c.review || 0}</strong> need a person · <strong>${c.pass || 0}</strong> passing · ${run.pages || 0} page-width checks at ${esc(run.widths || '')}px, level ${esc(run.level || 'AA')}.</p>`;
+}
+function filesHTML(run) {
+  const files = (run.files || []).filter(f => LABEL[f.format]);
+  return `<div class="files">${files.map(f => `<a href="${esc(f.href)}" class="${f.format === 'html' ? 'primary' : ''}" ${f.format === 'html' ? '' : 'download'}>${f.format === 'html' ? LABEL.html : 'Download ' + LABEL[f.format]}<span class="sr"> for ${esc(run.site)}</span></a>`).join('')}</div>`;
+}
+function resultHTML(run) { return kpis(run) + filesHTML(run); }
+
+/* ---------- previous runs ---------- */
+async function loadRuns() {
+  const { ok, d } = await api('runs');
+  const box = $('runs');
+  if (!ok) { box.innerHTML = ''; $('runs-lead').textContent = 'The list of runs is not available until the service is set up.'; return; }
+  if (!d.runs.length) { box.innerHTML = '<p class="small">No scans yet. The first one appears here when it finishes.</p>'; return; }
+  box.innerHTML = d.runs.map(r => { const s = r.summary || {}, c = r.checklist || {}; return `<article class="card run"><div><h3>${esc(r.site)}</h3><p class="meta">${esc(r.url)} · ${fmtDate(r.finishedAt)} · ${r.pages} page-width checks · ${esc(r.widths || '')}px · ${esc(r.level || 'AA')}</p><div class="tags"><span class="tag crit">${s.critical || 0} critical</span><span class="tag ser">${s.serious || 0} serious</span><span class="tag">${s.moderate || 0} moderate</span><span class="tag">${s.minor || 0} minor</span><span class="tag fail">${c.fail || 0} failing</span><span class="tag review">${c.review || 0} review</span><span class="tag pass">${c.pass || 0} passing</span></div>${filesHTML(r)}</div></article>`; }).join('');
+}
+
+/* ---------- the sections and their items ---------- */
+const CL = window.CHECKLIST || null;
+function renderPills() {
+  if (!CL) { $('pills').innerHTML = '<li class="small">The checklist data (checklist.js) is missing next to this page.</li>'; return; }
+  $('pills').innerHTML = CL.SECTIONS.map(s => { const n = CL.ITEMS.filter(i => i.section === s.id).length; return `<li><button type="button" data-section="${esc(s.id)}" aria-expanded="false" aria-controls="items">${esc(s.title)}<small>${n}<span class="sr"> items</span></small></button></li>`; }).join('');
+}
+function showSection(id) {
+  const box = $('items');
+  document.querySelectorAll('#pills button').forEach(b => b.setAttribute('aria-expanded', String(b.dataset.section === id)));
+  const sec = CL.SECTIONS.find(s => s.id === id); const items = CL.ITEMS.filter(i => i.section === id);
+  box.innerHTML = `<button class="btn secondary small close" type="button" id="close">Close</button><h3>${esc(sec.title)}</h3><p class="small">${items.length} item${items.length === 1 ? '' : 's'}. "Automatic" means the scanner decides it; "Needs a person" means it lists what to look at.</p>` +
+    items.map(it => `<article class="item"><h4>${esc(it.title)} <span class="badge ${esc(it.automated)}">${AUTO_LABEL[it.automated] || esc(it.automated)}</span></h4><p>${esc(it.description)}</p><p class="wc">${it.criterion ? `<a href="${esc(it.criterion.url)}">WCAG ${esc(it.criterion.code)} ${esc(it.criterion.name)} (${esc(it.criterion.level)})</a> · ` : ''}<a href="${esc(it.checklistUrl || 'https://www.a11yproject.com/checklist/')}">On the checklist</a></p></article>`).join('');
+  box.hidden = false; box.focus({ preventScroll: true }); box.scrollIntoView({ block: 'nearest' });
+  $('close').addEventListener('click', () => { box.hidden = true; document.querySelectorAll('#pills button').forEach(b => b.setAttribute('aria-expanded', 'false')); const btn = document.querySelector(`#pills button[data-section="${id}"]`); if (btn) btn.focus(); });
+}
+$('pills').addEventListener('click', e => { const b = e.target.closest('button[data-section]'); if (!b || !CL) return; if (b.getAttribute('aria-expanded') === 'true') { $('items').hidden = true; b.setAttribute('aria-expanded', 'false'); } else showSection(b.dataset.section); });
+
+/* ---------- go ---------- */
+renderPills();
+ping().then(() => {
+  loadRuns();
+  // A scan started earlier in this browser: keep following it.
+  try { const j = JSON.parse(localStorage.getItem('a11y-job') || 'null'); if (j && Date.now() - j.at < 45 * 60000 && service && service.configured) { $('go').disabled = true; watch(j.id, j.url, j.at); } else if (j) forget(); } catch (e) { /* fine */ }
+});
+</script>
+</body>
+</html>

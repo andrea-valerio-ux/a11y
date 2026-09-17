@@ -1,0 +1,20 @@
+{
+  "name": "a11y-checklist-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Accessibility scanner organised around The A11Y Project checklist. Every finding carries a screenshot, the rule, the link and the page address.",
+  "bin": {
+    "a11y": "./bin/a11y.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/a11y.js ui",
+    "test": "node test/smoke.js",
+    "package": "node scripts/package.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.0.0"
+  }
+}

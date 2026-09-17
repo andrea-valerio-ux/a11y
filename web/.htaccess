@@ -1,0 +1,15 @@
+# The settings file holds the GitHub token: never serve it.
+<Files "config.php">
+  Require all denied
+</Files>
+<Files "config.example.php">
+  Require all denied
+</Files>
+
+# No directory listings; the page and api.php know where everything is.
+Options -Indexes
+
+# Reports are static files; let browsers keep them a little.
+<FilesMatch "\.(xlsx|docx|pdf|csv)$">
+  Header set Cache-Control "private, max-age=600"
+</FilesMatch>

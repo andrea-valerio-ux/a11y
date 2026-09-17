@@ -1,0 +1,13 @@
+node_modules/
+runs/
+.DS_Store
+dist/
+.cache/
+
+# Website side (HostGator): settings with the GitHub token, and what PHP writes
+web/config.php
+web/runs/
+web/data/
+
+# Local editor/preview settings
+.claude/
