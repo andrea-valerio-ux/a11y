@@ -15,14 +15,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const [runDir, uploadRoot, requestId = 'manual'] = process.argv.slice(2);
-if (!runDir || !uploadRoot) { console.error('usage: prepare-upload.js <run folder> <upload folder> [request id]'); process.exit(2); }
+const [runDir, uploadRoot, requestId = 'manual', siteName = ''] = process.argv.slice(2);
+if (!runDir || !uploadRoot) { console.error('usage: prepare-upload.js <run folder> <upload folder> [request id] [site name]'); process.exit(2); }
 
 const read = f => { const p = path.join(runDir, f); return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : null; };
 const manifest = read('run.json');
 if (!manifest) { console.error('no run.json in ' + runDir); process.exit(2); }
 
-const site = (() => { try { return new URL(manifest.startUrl).hostname.replace(/^www\./, ''); } catch (e) { return 'site'; } })().replace(/[^a-z0-9.-]+/gi, '-');
+// The folder name: the name given on the form, else the site's host name.
+const site = (siteName.trim() || (() => { try { return new URL(manifest.startUrl).hostname.replace(/^www\./, ''); } catch (e) { return 'site'; } })()).replace(/[^a-z0-9.-]+/gi, '-').replace(/^-+|-+$/g, '') || 'site';
 const when = new Date(manifest.finishedAt || Date.now());
 const two = n => String(n).padStart(2, '0');
 const stamp = `${when.getUTCFullYear()}-${two(when.getUTCMonth() + 1)}-${two(when.getUTCDate())}-${two(when.getUTCHours())}${two(when.getUTCMinutes())}`;
