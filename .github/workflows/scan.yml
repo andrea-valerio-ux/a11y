@@ -38,6 +38,10 @@ on:
         description: Id given by the web form (leave as is when starting by hand)
         default: manual
         type: string
+      client:
+        description: Name for the run folder (default, the site's host name)
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -52,6 +56,7 @@ jobs:
       WIDTHS: ${{ inputs.widths }}
       LEVEL: ${{ inputs.level }}
       REQUEST_ID: ${{ inputs.request_id }}
+      CLIENT: ${{ inputs.client }}
       # The upload step is skipped when no FTP host is configured (the report
       # is then only kept as a workflow artifact).
       FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -83,16 +88,28 @@ jobs:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: node bin/a11y.js doctor
 
-      - name: Scan
+      # lftp carries the live progress during the scan and the reports after it.
+      - name: Install the FTP client
+        if: ${{ env.FTP_HOST != '' }}
+        run: sudo apt-get install -y -q lftp >/dev/null
+
+      # The practice page ships with the scanner (test/fixture). When that is the
+      # target, the scanner's own app serves it on this machine for the scan.
+      - name: Serve the practice page
+        if: ${{ startsWith(inputs.url, 'http://127.0.0.1:4173/') }}
         env:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: |
-          # Exit code 1 means "critical findings", which is a result, not a failure.
-          set +e
-          node bin/a11y.js scan "$URL" --pages "$PAGES" --widths "$WIDTHS" --level "$LEVEL" --out run
-          code=$?
-          set -e
-          if [ "$code" -gt 1 ]; then echo "scan failed with code $code"; exit "$code"; fi
+          nohup node bin/a11y.js ui --no-open --port 4173 --runs /tmp/practice-runs > /tmp/practice-ui.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:4173/ping && break; sleep 1; done
+          curl -sf -o /dev/null http://127.0.0.1:4173/demo/ && echo "The practice page is being served on this machine."
+
+      - name: Scan
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        # Same scan as `a11y scan`, plus a progress file published to the site
+        # every few seconds so the page can show pages, widths and topics live.
+        run: node scripts/ci/scan-live.js
 
       - name: Build the reports
         env:
@@ -100,12 +117,11 @@ jobs:
         run: node bin/a11y.js report run
 
       - name: Prepare the upload folder
-        run: node scripts/ci/prepare-upload.js run upload "$REQUEST_ID" | tee -a "$GITHUB_STEP_SUMMARY"
+        run: node scripts/ci/prepare-upload.js run upload "$REQUEST_ID" "$CLIENT" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Upload to the website
         if: ${{ env.FTP_HOST != '' }}
         run: |
-          sudo apt-get install -y -q lftp >/dev/null
           PROTO="${FTP_PROTOCOL:-ftp}"
           PORT="${FTP_PORT:-21}"
           DIR="${FTP_DIR:-.}"
@@ -118,6 +134,7 @@ jobs:
             set net:max-retries 3;
             set net:timeout 30;
             mirror -R --no-perms --verbose=1 upload/ \"$DIR\";
+            rm -f \"$DIR/_progress/$REQUEST_ID.json\";
             bye"
           echo "Uploaded to $FTP_HOST:$DIR" >> "$GITHUB_STEP_SUMMARY"
 
