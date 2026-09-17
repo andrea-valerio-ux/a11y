@@ -5,11 +5,11 @@ site keeps the parts it can do, and GitHub does the heavy part for free:
 
 | Where | What |
 | --- | --- |
-| **andryta.com/technology/a11y/** (HostGator) | The page with the scan form and the list of runs (`web/index.html`), a small PHP file that starts scans and reports their status (`web/api.php`), and a `runs/` folder where finished reports land. |
+| **andryta.com/technology/a11y/** (HostGator) | The page with the scan form and the list of runs (`web/index.html`), a small PHP file that starts scans and reports their status (`web/api/index.php`), and a `runs/` folder where finished reports land. |
 | **github.com/andrea-valerio-ux/a11y** (private) | The scanner's code and a workflow (`.github/workflows/scan.yml`). Each scan runs on one of GitHub's free Linux machines: it installs Chrome, scans the site, builds the six reports and uploads them to `runs/` by FTP. |
 
 The scanner's own code does not change. A scan takes 3 to 6 minutes from the click to the report. The free
-allowance for a private repository is 2,000 machine-minutes a month, roughly 400 scans; `api.php` has a brake
+allowance for a private repository is 2,000 machine-minutes a month, roughly 400 scans; `api/index.php` has a brake
 (6 scans an hour, 5 pages each, both adjustable) so a busy day cannot burn through it.
 
 Anyone who can open the page can start a scan unless you set an **access code** in `config.php` (a word people
@@ -75,16 +75,20 @@ cPanel → **Files → File Manager** → `public_html` → `technology` → **+
 from the `web/` folder of the project:
 
 ```
-index.html   checklist.js   api.php   .htaccess   config.example.php
+index.html   checklist.js   .htaccess   config.example.php
 ```
+
+Then **+ Folder** named `api`, open it, and upload `index.php` from the project's `web/api/` folder into it. The
+name matters: this hosting account refuses every PHP file that is not called `index.php`, so the API lives in its
+own folder under that name.
 
 Still in File Manager, right-click `config.example.php` → **Copy** → name it `config.php`. Right-click
 `config.php` → **Edit**: paste the token from step 2 into `github_token`, set an `access_code` if you want one,
-save. The FTP account created the `runs` folder already; `api.php` creates `data` by itself.
+save. The FTP account created the `runs` folder already; `api/index.php` creates `data` by itself.
 
 ### 5. Try it
 
-- Open `https://andryta.com/technology/a11y/api.php?action=check`. It should say `"ok":true` and name the
+- Open `https://andryta.com/technology/a11y/api/index.php?action=check`. It should say `"ok":true` and name the
   workflow. If not, the message tells which of the token, the repository name or the branch is wrong.
 - Open `https://andryta.com/technology/a11y/`. The status card says **Ready to scan**.
 - Scan `https://andryta.com` with one page at two widths. The status card walks through the steps; the
@@ -107,15 +111,16 @@ save. The FTP account created the `runs` folder already; `api.php` creates `data
 
 Edit the code on the Mac, run `npm test`, then commit and push. The next scan uses the new code. If
 `src/checklist.js` changes, run `node scripts/build-web.js` and upload `web/checklist.js` again. If `web/index.html`
-or `web/api.php` change, upload them again.
+or `web/api/index.php` change, upload them again.
 
 ## When something goes wrong
 
 | What you see | Why | What to do |
 | --- | --- | --- |
+| **The service is not reachable** | `api/index.php` is missing, or a PHP file was uploaded under another name (this hosting answers 403 to any PHP file not named `index.php`) | Step 4: the file must be `api/index.php`. |
 | **The service is not configured yet** | `config.php` is missing or still has the example token | Step 4. |
 | **GitHub did not accept the scan (401)** | The token is wrong or expired | Step 2, paste the new one. |
-| **GitHub did not accept the scan (404)** | Repository name, workflow file or branch in `config.php` is wrong, or the token has no access to the repository | `api.php?action=check` names the problem. |
+| **GitHub did not accept the scan (404)** | Repository name, workflow file or branch in `config.php` is wrong, or the token has no access to the repository | `api/index.php?action=check` names the problem. |
 | **GitHub did not accept the scan (403)** | The token has no **Actions: Read and write** permission | Edit the token's permissions. |
 | Stuck at **Building and uploading** for more than 10 minutes | The scan finished but the FTP upload failed | Open the run in the Actions tab; the "Upload to the website" step shows the FTP error. Usually a wrong `FTP_USER` (it needs the `@andryta.com` part) or password. |
 | **The scan failed** | Chrome could not load the site, or the site blocks automated visits | The Actions log has the details. Try one page first. |
