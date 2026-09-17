@@ -38,6 +38,27 @@ fieldset{border:0;padding:0;margin:0 0 14px;min-width:0}
 legend{font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
 .chk{display:inline-flex;align-items:center;gap:8px;margin:4px 14px 4px 0;font-size:15px}
 .chk input{width:18px;height:18px;accent-color:var(--accent)}
+.opt{font-weight:400;color:var(--muted)}
+.tryit{margin:-6px 0 14px;font-size:14px;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--accent);text-decoration:underline;cursor:pointer}
+.group{margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.group .lb{margin-bottom:8px}
+.devs{display:grid;gap:2px;margin-bottom:10px}
+.dev{display:flex;align-items:center;gap:10px;background:none;border:0;padding:7px 4px;border-radius:8px;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.dev .dn{font-weight:600;font-size:15px;min-width:72px}
+.dev .dw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--muted);flex:1}
+.dev .sw{width:40px;height:24px;border-radius:12px;background:var(--line);position:relative;transition:background .15s;flex:none}
+.dev .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.dev[aria-checked=true] .sw{background:var(--accent)}.dev[aria-checked=true] .sw::after{left:19px}
+@media (prefers-reduced-motion:reduce){.dev .sw,.dev .sw::after{transition:none}}
+.wchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.wchips:empty{display:none}
+.wchip{display:inline-flex;align-items:center;gap:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;border:1px solid var(--line);border-radius:14px;padding:2px 4px 2px 10px;background:var(--chip)}
+.wchip button{background:none;border:0;color:var(--muted);font-size:16px;line-height:1;padding:2px 6px;border-radius:50%;cursor:pointer}
+.wchip button:hover{color:var(--down)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.segbtn{font:inherit;font-weight:700;font-size:15px;padding:8px 18px;border:0;background:var(--card);color:var(--ink);cursor:pointer}
+.segbtn+.segbtn{border-left:1px solid var(--line)}
+.segbtn[aria-checked=true]{background:var(--accent);color:var(--accent-ink)}
 .consent{display:flex;gap:10px;align-items:flex-start;margin:6px 0 16px;font-size:15px}
 .consent input{width:18px;height:18px;flex:none;margin-top:3px;accent-color:var(--accent)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 20px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
@@ -64,6 +85,23 @@ ol.steps li .n{display:inline-grid;place-items:center;width:22px;height:22px;bor
 ol.steps li[data-st="active"]{color:var(--ink);font-weight:600}ol.steps li[data-st="active"] .n{background:var(--warn-bg);color:var(--warn)}
 ol.steps li[data-st="done"] .n{background:var(--ok-bg);color:var(--ok)}
 ol.steps li[data-st="failed"] .n{background:var(--down-bg);color:var(--down)}
+.live{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.live .pstat{margin:0 0 8px;font-size:15px;font-weight:600;word-break:break-word}
+.live .ptot{margin:0 0 8px;font-size:14px;color:var(--muted)}
+.bar{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin:0 0 14px}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px;margin-bottom:12px}
+.mod{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:6px}
+.mod::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.mod.on{color:var(--ink);background:var(--warn-bg)}.mod.on::before{background:var(--warn)}
+.mod.done::before{background:var(--ok)}.mod.bad::before{background:var(--down)}
+.pagelist{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.pagelist td{padding:4px 6px;border-top:1px solid var(--line);vertical-align:top}
+.pagelist td.u{word-break:break-all;color:var(--muted)}
+.pagelist td.w{white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.pagelist td.s{white-space:nowrap;text-align:right;font-weight:600}
+.pagelist tr.running td.s{color:var(--warn)}.pagelist tr.done td.s{color:var(--ok)}.pagelist tr.error td.s{color:var(--down)}
+.plog{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);max-height:140px;overflow:auto;border-top:1px solid var(--line);padding-top:8px;white-space:pre-wrap}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
 .kpi{background:var(--chip);border-radius:10px;padding:8px 10px;text-align:center}
 .kpi b{display:block;font-size:20px;line-height:1.1}
@@ -122,19 +160,33 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
         <h2 id="scan-h">New scan</h2>
         <p class="sub">The scan runs on a free machine at GitHub and takes 3 to 6 minutes. The report appears here when it is done.</p>
         <label class="f"><span class="lb">Web address</span><input type="text" class="mono" id="url" name="url" placeholder="https://example.com" autocomplete="url" spellcheck="false" inputmode="url" required></label>
+        <p class="tryit">First time? <button type="button" class="linkbtn" id="trydemo">Try the practice page</button>, a page with deliberate problems that ships with the scanner.</p>
         <div class="row">
-          <label class="f"><span class="lb">Pages</span><select id="pages" name="pages"><option value="1">Just this page</option><option value="2">2 pages</option><option value="3">3 pages</option><option value="5">5 pages</option></select></label>
-          <label class="f"><span class="lb">Level</span><select id="level" name="level"><option value="AA">WCAG 2.2 AA</option><option value="AAA">WCAG 2.2 AAA</option></select></label>
+          <label class="f"><span class="lb">Pages</span><select id="pages" name="pages"><option value="1">Just this one</option><option value="2">Up to 2</option><option value="3">Up to 3</option><option value="5">Up to 5</option></select></label>
+          <label class="f"><span class="lb">Name this run <span class="opt">(optional)</span></span><input type="text" id="client" name="client" placeholder="taken from the address" autocomplete="off" maxlength="60"></label>
         </div>
-        <fieldset>
-          <legend>Screen widths</legend>
-          <label class="chk"><input type="checkbox" name="w" value="1440" checked> 1440 desktop</label>
-          <label class="chk"><input type="checkbox" name="w" value="1024"> 1024 laptop</label>
-          <label class="chk"><input type="checkbox" name="w" value="768"> 768 tablet</label>
-          <label class="chk"><input type="checkbox" name="w" value="390" checked> 390 phone</label>
-        </fieldset>
+        <div class="group">
+          <span class="lb" id="wlb">Screen widths</span>
+          <div class="devs" role="group" aria-labelledby="wlb">
+            <button type="button" class="dev" role="switch" data-w="390" aria-checked="true"><span class="dn">Phone</span><span class="dw">390 px</span><span class="sw" aria-hidden="true"></span></button>
+            <button type="button" class="dev" role="switch" data-w="768" aria-checked="false"><span class="dn">Tablet</span><span class="dw">768 px</span><span class="sw" aria-hidden="true"></span></button>
+            <button type="button" class="dev" role="switch" data-w="1440" aria-checked="true"><span class="dn">Desktop</span><span class="dw">1440 px</span><span class="sw" aria-hidden="true"></span></button>
+          </div>
+          <label class="f"><span class="lb">Add a standard width</span>
+            <select id="addwidth"><option value="">Choose a width…</option><option value="320">320 — small phone</option><option value="360">360 — Android phone</option><option value="414">414 — large phone</option><option value="480">480 — phone, landscape</option><option value="600">600 — small tablet</option><option value="834">834 — tablet, landscape</option><option value="960">960 — small laptop</option><option value="1024">1024 — laptop</option><option value="1280">1280 — desktop</option><option value="1366">1366 — common laptop</option><option value="1920">1920 — large desktop</option></select></label>
+          <div class="wchips" id="wchips"></div>
+          <p class="small" id="whint"></p>
+        </div>
+        <div class="group">
+          <span class="lb" id="lvllb">Conformance level</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lvllb">
+            <button type="button" class="segbtn" role="radio" data-level="AA" aria-checked="true">AA</button>
+            <button type="button" class="segbtn" role="radio" data-level="AAA" aria-checked="false">AAA</button>
+          </div>
+          <p class="small">AA is the usual legal target. AAA raises text contrast to 7:1 and reports every control under 44 px.</p>
+        </div>
         <label class="f" id="codewrap" hidden><span class="lb">Access code</span><input type="password" id="code" name="code" autocomplete="off"></label>
-        <label class="consent"><input type="checkbox" id="ok" name="ok"><span>I am authorized to test this site. A scan sends real traffic to it.</span></label>
+        <label class="consent"><input type="checkbox" id="ok" name="ok"><span>A scan sends real traffic to this site. I am authorized to scan it.</span></label>
         <p class="err" id="err" role="alert"></p>
         <div class="actions"><button class="btn" type="submit" id="go">Start scan</button></div>
       </form>
@@ -151,6 +203,7 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
             <li data-st=""><span class="n" aria-hidden="true">5</span><span>Done</span></li>
           </ol>
           <p class="small" id="jobline"></p>
+          <div id="live" hidden aria-live="off"></div>
         </div>
         <div id="result" hidden></div>
         <p class="small" id="hint"></p>
@@ -182,8 +235,10 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
 
 <script src="checklist.js"></script>
 <script>
-const API = 'api.php';
+const API = 'api/index.php';
 const AUTO_LABEL = { yes: 'Automatic', partial: 'Partly automatic', no: 'Needs a person' };
+// The ten measurement topics, in the order the scanner runs them (as in the desktop app).
+const MODULES = [['document', 'language, title, landmarks and global code'], ['content', 'headings, lists, alignment and reading level'], ['images', 'images and text alternatives'], ['controls', 'links and buttons'], ['forms', 'forms and tables'], ['media', 'media and animation'], ['contrast', 'color contrast of text, icons and borders'], ['keyboard', 'focus visibility, focus order and hidden tab stops'], ['targets', 'target size and spacing'], ['responsive', 'reflow, zoom and forced colors']];
 const LABEL = { html: 'Open the report', xlsx: 'Excel', docx: 'Word', pdf: 'PDF', csv: 'CSV', json: 'JSON' };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -201,24 +256,46 @@ async function ping() {
     service = d;
     $('codewrap').hidden = !d.needsCode;
     if (d.maxPages) { for (const o of $('pages').options) o.disabled = parseInt(o.value, 10) > d.maxPages; }
-    if (!d.configured) { setState('down', 'The service is not configured yet'); $('hint').textContent = 'api.php is here, but config.php is missing or still has the example token. See DEPLOY.md.'; $('go').disabled = true; return; }
+    if (!d.configured) { setState('down', 'The service is not configured yet'); $('hint').textContent = 'api/index.php is here, but config.php is missing or still has the example token. See DEPLOY.md.'; $('go').disabled = true; return; }
     setState('up', 'Ready to scan'); $('hint').textContent = `Up to ${d.maxScansPerHour} scans an hour and ${d.maxPages} pages per scan, to stay within GitHub's free minutes.`; $('go').disabled = false;
   } catch (e) {
-    setState('down', 'The service is not reachable'); $('hint').textContent = 'api.php did not answer. If you opened this file from your computer, that is expected: it works once uploaded to the website.'; $('go').disabled = true;
+    setState('down', 'The service is not reachable'); $('hint').textContent = 'api/index.php did not answer. If you opened this file from your computer, that is expected: it works once uploaded to the website.'; $('go').disabled = true;
   }
 }
+
+/* ---------- widths and level, as in the desktop app ---------- */
+const STD = new Set([390, 768, 1440]);
+const form = { widths: new Set([390, 1440]), level: 'AA' };
+function paintWidths() {
+  document.querySelectorAll('.dev').forEach(b => b.setAttribute('aria-checked', form.widths.has(+b.dataset.w) ? 'true' : 'false'));
+  const extra = [...form.widths].filter(w => !STD.has(w)).sort((a, b) => a - b);
+  $('wchips').innerHTML = extra.map(w => `<span class="wchip">${w} px<button type="button" data-rm="${w}" aria-label="Remove ${w} pixels">&times;</button></span>`).join('');
+  const all = [...form.widths].sort((a, b) => a - b);
+  $('whint').textContent = all.length ? `Each page is checked at ${all.join(', ')} px.` : 'Choose at least one width.';
+}
+document.querySelectorAll('.dev').forEach(b => b.addEventListener('click', () => { const w = +b.dataset.w; form.widths.has(w) ? form.widths.delete(w) : form.widths.add(w); paintWidths(); }));
+$('addwidth').addEventListener('change', e => { if (e.target.value) { if (form.widths.size >= 4) { $('err').textContent = 'Up to 4 widths per scan online, to keep scans short.'; } else form.widths.add(+e.target.value); e.target.value = ''; paintWidths(); } });
+$('wchips').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (b) { form.widths.delete(+b.dataset.rm); paintWidths(); } });
+document.querySelectorAll('.segbtn').forEach(b => b.addEventListener('click', () => { form.level = b.dataset.level; document.querySelectorAll('.segbtn').forEach(x => x.setAttribute('aria-checked', String(x === b))); }));
+paintWidths();
+
+// The practice page ships with the scanner; the machine at GitHub serves it to
+// itself during the run. No authorization question: it is our own page.
+const PRACTICE = 'practice';
+const isPractice = v => /^practice( page)?$/i.test(v.trim());
+$('trydemo').addEventListener('click', () => { $('url').value = PRACTICE; $('pages').value = '2'; $('ok').checked = true; $('err').textContent = ''; $('go').focus(); });
 
 /* ---------- start a scan ---------- */
 $('scanform').addEventListener('submit', async e => {
   e.preventDefault();
   $('err').textContent = '';
   const url = $('url').value.trim();
-  const widths = [...document.querySelectorAll('input[name=w]:checked')].map(i => i.value);
-  if (!url) { $('err').textContent = 'Type the web address to scan.'; $('url').focus(); return; }
+  const widths = [...form.widths].sort((a, b) => a - b);
+  if (!url) { $('err').textContent = 'Type the web address to scan, or try the practice page.'; $('url').focus(); return; }
   if (!widths.length) { $('err').textContent = 'Choose at least one screen width.'; return; }
-  if (!$('ok').checked) { $('err').textContent = 'Confirm you are authorized to scan this site.'; $('ok').focus(); return; }
+  if (!$('ok').checked && !isPractice(url)) { $('err').textContent = 'Confirm you are authorized to scan this site.'; $('ok').focus(); return; }
   $('go').disabled = true;
-  const { ok, d } = await api('scan', { body: { url, pages: parseInt($('pages').value, 10), widths: widths.join(','), level: $('level').value, authorized: true, code: $('code').value } });
+  const { ok, d } = await api('scan', { body: { url, pages: parseInt($('pages').value, 10), widths: widths.join(','), level: form.level, client: $('client').value.trim(), authorized: $('ok').checked || isPractice(url), code: $('code').value } });
   if (!ok) { $('err').textContent = d.error || 'The scan could not be started.'; $('go').disabled = false; return; }
   remember(d.id, d.url);
   watch(d.id, d.url, Date.now());
@@ -235,9 +312,28 @@ function paintSteps(state) {
 }
 function remember(id, url) { try { localStorage.setItem('a11y-job', JSON.stringify({ id, url, at: Date.now() })); } catch (e) { /* fine */ } }
 function forget() { try { localStorage.removeItem('a11y-job'); } catch (e) { /* fine */ } }
+// The live view, from the progress file the machine at GitHub publishes every
+// few seconds: status line, bar, topic chips, pages and log, as in the app.
+function liveHTML(p) {
+  const cur = p.current;
+  const total = (p.done && p.done.total) || (p.targets && p.targets.total) || 1;
+  const curPage = cur && (p.pages || []).find(x => x.page === cur.page && x.width === cur.width);
+  const modsDone = curPage ? Object.keys(curPage.modules || {}).length : 0;
+  const frac = Math.min(1, (((p.done && p.done.n) || 0) + modsDone / MODULES.length) / total);
+  const stat = p.state === 'finishing' ? 'Scan done. Building the reports and uploading them…'
+    : cur ? `Page ${cur.index} of ${cur.of} at ${cur.width}px: ${cur.url}` : p.targets ? 'Opening the browser…' : 'Finding the pages…';
+  const mods = MODULES.map(([k, l]) => { let c = ''; if (curPage) { if (curPage.modules[k] === 'ok') c = 'done'; else if (curPage.modules[k] === 'bad') c = 'bad'; else if (cur && cur.module === k) c = 'on'; } return `<div class="mod ${c}">${esc(l)}</div>`; }).join('');
+  const rows = (p.pages || []).map(x => `<tr class="${esc(x.status)}"><td class="u">${esc(x.url)}</td><td class="w">${x.width}px</td><td class="s">${x.status === 'done' ? `${x.findings} finding${x.findings === 1 ? '' : 's'}` : x.status === 'error' ? 'could not load' : 'scanning…'}</td></tr>`).join('');
+  return `<div class="live"><p class="pstat">${esc(stat)}</p>
+    <p class="ptot">${(p.done && p.done.n) || 0} of ${total} page-width checks · ${p.findings || 0} finding${p.findings === 1 ? '' : 's'} so far${p.targets ? ` · ${p.targets.count} page${p.targets.count === 1 ? '' : 's'}` : ''}</p>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(frac * 100)}" aria-label="Scan progress"><i style="width:${(frac * 100).toFixed(1)}%"></i></div>
+    <div class="mods" aria-label="Topics being measured">${mods}</div>
+    ${rows ? `<table class="pagelist"><tbody>${rows}</tbody></table>` : ''}
+    <div class="plog">${esc((p.log || []).slice(-14).join('\n'))}</div></div>`;
+}
 function watch(id, url, startedAt) {
   clearInterval(poll);
-  $('job').hidden = false; $('result').hidden = true; $('result').innerHTML = '';
+  $('job').hidden = false; $('result').hidden = true; $('result').innerHTML = ''; $('live').hidden = true; $('live').innerHTML = '';
   setState('busy', 'Scan in progress'); paintSteps('queued');
   $('jobline').textContent = `${url} · requested ${fmtDate(new Date(startedAt).toISOString())}`;
   let lastState = 'queued';
@@ -246,8 +342,9 @@ function watch(id, url, startedAt) {
     if (!ok && d.state !== 'unknown') return;                       // a hiccup; try again next time
     const state = d.state || 'unknown';
     const mins = Math.max(0, Math.round((Date.now() - startedAt) / 60000));
+    if (d.progress && state !== 'done') { $('live').innerHTML = liveHTML(d.progress); $('live').hidden = false; }
     if (state === 'done') {
-      clearInterval(poll); paintSteps('done'); forget();
+      clearInterval(poll); paintSteps('done'); forget(); $('live').hidden = true;
       setState('up', 'Scan finished'); $('jobline').textContent = `${url} · finished ${fmtDate(d.run.finishedAt)}`;
       $('result').innerHTML = resultHTML(d.run); $('result').hidden = false; $('go').disabled = false;
       loadRuns(); $('result').focus?.();
@@ -261,7 +358,8 @@ function watch(id, url, startedAt) {
       return;
     }
     if (state !== lastState) { lastState = state; paintSteps(state); }
-    $('jobline').textContent = `${url} · ${state === 'queued' ? 'waiting for a machine' : state === 'running' ? 'scanning' : 'uploading the reports'} · ${mins} min`;
+    $('jobline').textContent = `${url} · ${state === 'queued' ? 'waiting for a machine' : state === 'running' ? 'scanning' : 'building and uploading the reports'} · ${mins} min`;
+    if (state === 'queued') $('live').hidden = true;
     if (mins > 40) { clearInterval(poll); setState('down', 'This is taking too long'); $('result').innerHTML = '<p class="err">No result after 40 minutes. Check the Actions tab of the repository.</p>'; $('result').hidden = false; $('go').disabled = false; forget(); }
   };
   tick(); poll = setInterval(tick, 8000);
