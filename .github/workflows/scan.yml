@@ -86,12 +86,16 @@ jobs:
       - name: Check the machine
         env:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
-        run: node bin/a11y.js doctor
-
-      # lftp carries the live progress during the scan and the reports after it.
-      - name: Install the FTP client
-        if: ${{ env.FTP_HOST != '' }}
-        run: sudo apt-get install -y -q lftp >/dev/null
+        run: |
+          node bin/a11y.js doctor
+          # Which website settings reached this run (names only, never values).
+          {
+            echo "### Website upload settings"
+            for v in FTP_HOST FTP_USER FTP_PASSWORD; do
+              if [ -n "$(eval echo "\$$v")" ]; then echo "- $v: set"; else echo "- $v: **missing** (add it under Settings → Secrets and variables → Actions → Repository secrets)"; fi
+            done
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # The practice page ships with the scanner (test/fixture). When that is the
       # target, the scanner's own app serves it on this machine for the scan.
@@ -121,22 +125,30 @@ jobs:
 
       - name: Upload to the website
         if: ${{ env.FTP_HOST != '' }}
+        # One curl call per file: explicit, and the step fails if any file does not land.
         run: |
+          set -euo pipefail
           PROTO="${FTP_PROTOCOL:-ftp}"
           PORT="${FTP_PORT:-21}"
-          DIR="${FTP_DIR:-.}"
-          VERIFY="${FTP_VERIFY:-no}"
-          lftp -u "$FTP_USER,$FTP_PASSWORD" "$PROTO://$FTP_HOST:$PORT" -e "
-            set ssl:verify-certificate $VERIFY;
-            set ftp:ssl-force true;
-            set ftp:ssl-protect-data true;
-            set sftp:auto-confirm yes;
-            set net:max-retries 3;
-            set net:timeout 30;
-            mirror -R --no-perms --verbose=1 upload/ \"$DIR\";
-            rm -f \"$DIR/_progress/$REQUEST_ID.json\";
-            bye"
-          echo "Uploaded to $FTP_HOST:$DIR" >> "$GITHUB_STEP_SUMMARY"
+          DIR="${FTP_DIR:-.}"; DIR="${DIR#.}"; DIR="${DIR#/}"; DIR="${DIR%/}"; [ -n "$DIR" ] && DIR="$DIR/"
+          OPTS=(-sS --fail --retry 3 --retry-delay 2 --connect-timeout 30 -u "$FTP_USER:$FTP_PASSWORD")
+          [ "${FTP_VERIFY:-no}" = "yes" ] || OPTS+=(-k)
+          [ "$PROTO" = "ftp" ] && OPTS+=(--ssl-reqd)
+          BASE="$PROTO://$FTP_HOST:$PORT/$DIR"
+          n=0
+          while IFS= read -r -d '' f; do
+            rel="${f#upload/}"
+            curl "${OPTS[@]}" --ftp-create-dirs -T "$f" "$BASE$rel"
+            echo "  uploaded $rel"
+            n=$((n + 1))
+          done < <(find upload -type f -print0)
+          # The live-progress file has done its job.
+          curl "${OPTS[@]}" -Q "DELE ${DIR}_progress/$REQUEST_ID.json" -o /dev/null "$PROTO://$FTP_HOST:$PORT/" || true
+          # Prove the report folder is there by listing it.
+          FOLDER="$(dirname "$(find upload -name meta.json | head -1)")"; FOLDER="${FOLDER#upload/}"
+          echo "Remote listing of $FOLDER:"
+          curl "${OPTS[@]}" --list-only "$BASE$FOLDER/"
+          echo "Uploaded $n files to $FTP_HOST/$DIR$FOLDER" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep a copy for a week
         if: always()
