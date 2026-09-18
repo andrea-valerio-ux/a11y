@@ -85,23 +85,25 @@ ol.steps li .n{display:inline-grid;place-items:center;width:22px;height:22px;bor
 ol.steps li[data-st="active"]{color:var(--ink);font-weight:600}ol.steps li[data-st="active"] .n{background:var(--warn-bg);color:var(--warn)}
 ol.steps li[data-st="done"] .n{background:var(--ok-bg);color:var(--ok)}
 ol.steps li[data-st="failed"] .n{background:var(--down-bg);color:var(--down)}
-.live{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
-.live .pstat{margin:0 0 8px;font-size:15px;font-weight:600;word-break:break-word}
-.live .ptot{margin:0 0 8px;font-size:14px;color:var(--muted)}
-.bar{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin:0 0 14px}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.live{margin:4px 0 14px}
+.live h3{margin:0 0 2px;font-size:17px;line-height:1.3}
+.live .purl{margin:0 0 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--muted);word-break:break-all}
+.live .ptot{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.bar{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;margin:0 0 14px}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
-.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px;margin-bottom:12px}
-.mod{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:6px}
-.mod::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
-.mod.on{color:var(--ink);background:var(--warn-bg)}.mod.on::before{background:var(--warn)}
-.mod.done::before{background:var(--ok)}.mod.bad::before{background:var(--down)}
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-bottom:12px}
+.mod{font-size:13px;font-weight:600;color:var(--muted);text-align:center;padding:9px 6px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.mod.on{color:var(--ink);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--chip)}
+.mod.done{color:var(--ok);border-color:var(--ok-bg);background:var(--ok-bg)}
+.mod.bad{color:var(--down);border-color:var(--down-bg);background:var(--down-bg)}
+.plog{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px}
 .pagelist{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
 .pagelist td{padding:4px 6px;border-top:1px solid var(--line);vertical-align:top}
 .pagelist td.u{word-break:break-all;color:var(--muted)}
 .pagelist td.w{white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .pagelist td.s{white-space:nowrap;text-align:right;font-weight:600}
 .pagelist tr.running td.s{color:var(--warn)}.pagelist tr.done td.s{color:var(--ok)}.pagelist tr.error td.s{color:var(--down)}
-.plog{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);max-height:140px;overflow:auto;border-top:1px solid var(--line);padding-top:8px;white-space:pre-wrap}
+.plog{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.6;color:var(--ink);max-height:150px;overflow:auto;white-space:pre-wrap}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
 .kpi{background:var(--chip);border-radius:10px;padding:8px 10px;text-align:center}
 .kpi b{display:block;font-size:20px;line-height:1.1}
@@ -238,7 +240,7 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
 const API = 'api/index.php';
 const AUTO_LABEL = { yes: 'Automatic', partial: 'Partly automatic', no: 'Needs a person' };
 // The ten measurement topics, in the order the scanner runs them (as in the desktop app).
-const MODULES = [['document', 'language, title, landmarks and global code'], ['content', 'headings, lists, alignment and reading level'], ['images', 'images and text alternatives'], ['controls', 'links and buttons'], ['forms', 'forms and tables'], ['media', 'media and animation'], ['contrast', 'color contrast of text, icons and borders'], ['keyboard', 'focus visibility, focus order and hidden tab stops'], ['targets', 'target size and spacing'], ['responsive', 'reflow, zoom and forced colors']];
+const MODULES = [['document', 'Document', 'language, title, landmarks and global code'], ['content', 'Content', 'headings, lists, alignment and reading level'], ['images', 'Images', 'images and text alternatives'], ['controls', 'Controls', 'links and buttons'], ['forms', 'Forms', 'forms and tables'], ['media', 'Media', 'media and animation'], ['contrast', 'Contrast', 'color contrast of text, icons and borders'], ['keyboard', 'Keyboard', 'focus visibility, focus order and hidden tab stops'], ['targets', 'Targets', 'target size and spacing'], ['responsive', 'Reflow', 'reflow, zoom and forced colors']];
 const LABEL = { html: 'Open the report', xlsx: 'Excel', docx: 'Word', pdf: 'PDF', csv: 'CSV', json: 'JSON' };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -320,16 +322,17 @@ function liveHTML(p) {
   const curPage = cur && (p.pages || []).find(x => x.page === cur.page && x.width === cur.width);
   const modsDone = curPage ? Object.keys(curPage.modules || {}).length : 0;
   const frac = Math.min(1, (((p.done && p.done.n) || 0) + modsDone / MODULES.length) / total);
-  const stat = p.state === 'finishing' ? 'Scan done. Building the reports and uploading them…'
-    : cur ? `Page ${cur.index} of ${cur.of} at ${cur.width}px: ${cur.url}` : p.targets ? 'Opening the browser…' : 'Finding the pages…';
-  const mods = MODULES.map(([k, l]) => { let c = ''; if (curPage) { if (curPage.modules[k] === 'ok') c = 'done'; else if (curPage.modules[k] === 'bad') c = 'bad'; else if (cur && cur.module === k) c = 'on'; } return `<div class="mod ${c}">${esc(l)}</div>`; }).join('');
-  const rows = (p.pages || []).map(x => `<tr class="${esc(x.status)}"><td class="u">${esc(x.url)}</td><td class="w">${x.width}px</td><td class="s">${x.status === 'done' ? `${x.findings} finding${x.findings === 1 ? '' : 's'}` : x.status === 'error' ? 'could not load' : 'scanning…'}</td></tr>`).join('');
-  return `<div class="live"><p class="pstat">${esc(stat)}</p>
-    <p class="ptot">${(p.done && p.done.n) || 0} of ${total} page-width checks · ${p.findings || 0} finding${p.findings === 1 ? '' : 's'} so far${p.targets ? ` · ${p.targets.count} page${p.targets.count === 1 ? '' : 's'}` : ''}</p>
+  const head = p.state === 'finishing' ? 'Scan done. Building the reports…'
+    : cur ? `Measuring page ${cur.index} of ${cur.of} at ${cur.width}px` : p.targets ? 'Opening a browser…' : 'Finding the pages…';
+  const mods = MODULES.map(([k, short, l]) => { let c = ''; if (curPage) { if (curPage.modules[k] === 'ok') c = 'done'; else if (curPage.modules[k] === 'bad') c = 'bad'; else if (cur && cur.module === k) c = 'on'; } return `<div class="mod ${c}" title="${esc(l)}">${esc(short)}</div>`; }).join('');
+  const rows = (p.pages || []).map(x => `<tr class="${esc(x.status)}"><td class="u">${esc(x.url)}</td><td class="w">${x.width}px</td><td class="s">${x.status === 'done' ? `${x.findings} finding${x.findings === 1 ? '' : 's'}` : x.status === 'error' ? 'could not load' : 'measuring…'}</td></tr>`).join('');
+  const log = (p.log || []).slice(-12).map(l => l.replace(/^(\S+) @ (\d+)px$/, '→ $1 ($2px)'));
+  return `<div class="live"><h3>${esc(head)}</h3><p class="purl">${esc(cur ? cur.url : p.url || '')}</p>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(frac * 100)}" aria-label="Scan progress"><i style="width:${(frac * 100).toFixed(1)}%"></i></div>
     <div class="mods" aria-label="Topics being measured">${mods}</div>
-    ${rows ? `<table class="pagelist"><tbody>${rows}</tbody></table>` : ''}
-    <div class="plog">${esc((p.log || []).slice(-14).join('\n'))}</div></div>`;
+    <div class="plog">${esc(log.join('\n'))}</div>
+    <p class="ptot">${(p.done && p.done.n) || 0} of ${total} page-width checks · ${p.findings || 0} finding${p.findings === 1 ? '' : 's'} so far${p.targets ? ` · ${p.targets.count} page${p.targets.count === 1 ? '' : 's'} found` : ''}</p>
+    ${rows ? `<table class="pagelist"><tbody>${rows}</tbody></table>` : ''}</div>`;
 }
 function watch(id, url, startedAt) {
   clearInterval(poll);
