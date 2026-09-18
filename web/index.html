@@ -40,6 +40,7 @@ legend{font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
 .opt{font-weight:400;color:var(--muted)}
 .tryit{margin:-6px 0 14px;font-size:14px;color:var(--muted)}
 .linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--accent);text-decoration:underline;cursor:pointer}
+.linkbtn.danger{color:var(--down);font-size:14px}.linkbtn:disabled{opacity:.5;cursor:default}
 .group{margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
 .group .lb{margin-bottom:8px}
 .devs{display:grid;gap:2px;margin-bottom:10px}
@@ -381,8 +382,19 @@ async function loadRuns() {
   const box = $('runs');
   if (!ok) { box.innerHTML = ''; $('runs-lead').textContent = 'The list of runs is not available until the service is set up.'; return; }
   if (!d.runs.length) { box.innerHTML = '<p class="small">No scans yet. The first one appears here when it finishes.</p>'; return; }
-  box.innerHTML = d.runs.map(r => { const s = r.summary || {}, c = r.checklist || {}; return `<article class="card run"><div><h3>${esc(r.site)}</h3><p class="meta">${esc(r.url)} · ${fmtDate(r.finishedAt)} · ${r.pages} page-width checks · ${esc(r.widths || '')}px · ${esc(r.level || 'AA')}</p><div class="tags"><span class="tag crit">${s.critical || 0} critical</span><span class="tag ser">${s.serious || 0} serious</span><span class="tag">${s.moderate || 0} moderate</span><span class="tag">${s.minor || 0} minor</span><span class="tag fail">${c.fail || 0} failing</span><span class="tag review">${c.review || 0} review</span><span class="tag pass">${c.pass || 0} passing</span></div>${filesHTML(r)}</div></article>`; }).join('');
+  const canDelete = service && service.needsCode;
+  box.innerHTML = d.runs.map(r => { const s = r.summary || {}, c = r.checklist || {}; return `<article class="card run"><div><h3>${esc(r.site)}</h3><p class="meta">${esc(r.url)} · ${fmtDate(r.finishedAt)} · ${r.pages} page-width checks · ${esc(r.widths || '')}px · ${esc(r.level || 'AA')}</p><div class="tags"><span class="tag crit">${s.critical || 0} critical</span><span class="tag ser">${s.serious || 0} serious</span><span class="tag">${s.moderate || 0} moderate</span><span class="tag">${s.minor || 0} minor</span><span class="tag fail">${c.fail || 0} failing</span><span class="tag review">${c.review || 0} review</span><span class="tag pass">${c.pass || 0} passing</span></div>${filesHTML(r)}</div>${canDelete ? `<div><button type="button" class="linkbtn danger" data-del="${esc(r.folder)}" aria-label="Delete the run of ${esc(r.site)} from ${esc(fmtDate(r.finishedAt))}">Delete</button></div>` : ''}</article>`; }).join('');
 }
+$('runs').addEventListener('click', async e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  const code = $('code').value;
+  if (!code) { alert('Type the access code in the scan form first, then press Delete again.'); $('code').focus(); return; }
+  if (!confirm('Delete this run and its reports from the site? This cannot be undone.')) return;
+  b.disabled = true;
+  const { ok, d } = await api('delete', { body: { folder: b.dataset.del, code } });
+  if (!ok) { alert(d.error || 'Could not delete the run.'); b.disabled = false; return; }
+  loadRuns();
+});
 
 /* ---------- the sections and their items ---------- */
 const CL = window.CHECKLIST || null;

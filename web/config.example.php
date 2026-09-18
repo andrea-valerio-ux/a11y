@@ -17,6 +17,7 @@ return [
 
   // Optional: a word people must type to start a scan. Empty means anyone
   // who opens the page can start one (each scan spends GitHub minutes).
+  // With a code set, the page also offers a Delete button on each run.
   'access_code' => '',
 
   // Brakes on the free GitHub minutes: at most this many scans per hour,
