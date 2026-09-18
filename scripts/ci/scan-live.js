@@ -63,15 +63,19 @@ function write() {
   fs.writeFileSync(FILE, JSON.stringify(state));
 }
 
-// One lftp call, never two at once. Errors are logged and otherwise ignored:
+// One curl call, never two at once. Errors are logged and otherwise ignored:
 // progress is a convenience, the scan matters.
 function upload(cb) {
   if (!env.FTP_HOST) { if (cb) cb(); return; }
   if (uploading) { if (cb) cb(); return; }
   uploading = true;
-  const proto = env.FTP_PROTOCOL || 'ftp', port = env.FTP_PORT || '21', dir = env.FTP_DIR || '.', verify = env.FTP_VERIFY || 'no';
-  const script = `set ssl:verify-certificate ${verify}; set ftp:ssl-force true; set ftp:ssl-protect-data true; set sftp:auto-confirm yes; set net:max-retries 1; set net:timeout 15; set cmd:fail-exit false; cd "${dir}"; mkdir -p _progress; put -O _progress "${FILE}" -o ${id}.json; bye`;
-  const child = spawn('lftp', ['-u', `${env.FTP_USER},${env.FTP_PASSWORD}`, `${proto}://${env.FTP_HOST}:${port}`, '-e', script], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const proto = env.FTP_PROTOCOL || 'ftp', port = env.FTP_PORT || '21';
+  let dir = (env.FTP_DIR || '.').replace(/^\.?\/?/, '').replace(/\/$/, ''); if (dir) dir += '/';
+  const args = ['-sS', '--fail', '--connect-timeout', '20', '-u', `${env.FTP_USER}:${env.FTP_PASSWORD}`, '--ftp-create-dirs', '-T', FILE];
+  if ((env.FTP_VERIFY || 'no') !== 'yes') args.push('-k');
+  if (proto === 'ftp') args.push('--ssl-reqd');
+  args.push(`${proto}://${env.FTP_HOST}:${port}/${dir}_progress/${id}.json`);
+  const child = spawn('curl', args, { stdio: ['ignore', 'ignore', 'pipe'] });
   let err = '';
   child.stderr.on('data', d => { err += d; });
   child.on('exit', code => { uploading = false; if (code !== 0 && err.trim()) console.error('progress upload: ' + err.trim().split('\n').pop()); if (cb) cb(); });
