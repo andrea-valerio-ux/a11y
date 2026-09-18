@@ -64,6 +64,7 @@ legend{font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 20px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
 .btn:disabled,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
 .btn.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.btn.wide{width:100%}
 .btn.small{min-height:38px;padding:7px 14px;font-size:14px;border-radius:10px}
 .btn:hover:not(:disabled):not([aria-disabled="true"]){filter:brightness(1.08)}
 .err{color:var(--down);font-weight:600;margin:0 0 12px}
@@ -104,6 +105,29 @@ ol.steps li[data-st="failed"] .n{background:var(--down-bg);color:var(--down)}
 .pagelist td.s{white-space:nowrap;text-align:right;font-weight:600}
 .pagelist tr.running td.s{color:var(--warn)}.pagelist tr.done td.s{color:var(--ok)}.pagelist tr.error td.s{color:var(--down)}
 .plog{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.6;color:var(--ink);max-height:150px;overflow:auto;white-space:pre-wrap}
+/* design tokens: one accordion per token type, each body scrolls on its own */
+.tk{margin-top:16px}
+.tk h3.tkh{font-size:15px;margin:0 0 8px}
+.tk-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:0 0 10px}
+.tk-kpis div{background:var(--chip);border-radius:10px;padding:8px 10px}.tk-kpis b{display:block;font-size:20px;line-height:1.1}.tk-kpis span{font-size:12px;color:var(--muted)}
+.tkacc{border-top:1px solid var(--line)}
+.tkacc summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 2px}
+.tkacc summary::-webkit-details-marker{display:none}
+.tkacc summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);flex:none;margin:0 4px;transition:transform .15s}
+.tkacc[open] summary::before{transform:rotate(45deg)}
+.tkacc h4{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0;font-weight:700;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;flex:1}
+.tkacc h4 small{font-weight:500;letter-spacing:0;text-transform:none;font-size:12px}
+.tkacc summary:hover h4{color:var(--ink)}
+.tkbody{max-height:300px;overflow:auto;margin:0 0 10px;border:1px solid var(--line);border-radius:10px}
+.tk table{width:100%;border-collapse:collapse;font-size:13px}
+.tk td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.tk tr:last-child td{border-bottom:0}
+.tk .c1{width:34px}.tk .hits{text-align:right;white-space:nowrap;color:var(--muted)}
+.swc{display:inline-block;width:22px;height:22px;border-radius:5px;border:1px solid rgba(0,0,0,.2);vertical-align:middle}
+.tk .val,.tk .var{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}
+.tk .var{color:var(--accent)}.tk .fam{font-weight:700;font-size:14px}.tk .muted{color:var(--muted)}
+.tk .note{padding:10px;margin:0;color:var(--muted);font-size:13px}
+.tk .kind{padding:8px 8px 4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--chip)}
+.run .tk{grid-column:1/-1}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
 .kpi{background:var(--chip);border-radius:10px;padding:8px 10px;text-align:center}
 .kpi b{display:block;font-size:20px;line-height:1.1}
@@ -188,7 +212,7 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
         <label class="f" id="codewrap" hidden><span class="lb">Access code</span><input type="password" id="code" name="code" autocomplete="off"></label>
         <label class="consent"><input type="checkbox" id="ok" name="ok"><span>A scan sends real traffic to this site. I am authorized to scan it.</span></label>
         <p class="err" id="err" role="alert"></p>
-        <div class="actions"><button class="btn" type="submit" id="go">Start scan</button></div>
+        <div class="actions"><button class="btn wide" type="submit" id="go">Start scan</button></div>
       </form>
 
       <section class="card" aria-labelledby="status-h">
@@ -374,7 +398,51 @@ function filesHTML(run) {
   const files = (run.files || []).filter(f => LABEL[f.format]);
   return `<div class="files">${files.map(f => `<a href="${esc(f.href)}" class="${f.format === 'html' ? 'primary' : ''}" ${f.format === 'html' ? '' : 'download'}>${f.format === 'html' ? LABEL.html : 'Download ' + LABEL[f.format]}<span class="sr"> for ${esc(run.site)}</span></a>`).join('')}</div>`;
 }
-function resultHTML(run) { return kpis(run) + filesHTML(run); }
+function resultHTML(run) { return kpis(run) + filesHTML(run) + (run.tokens ? `<div class="tk" data-tokens="${esc(run.folder + '/' + run.tokens)}"><h3 class="tkh">Design tokens</h3><p class="small">Loading…</p></div>` : ''); }
+
+/* ---------- design tokens, one accordion per type ---------- */
+const KIND_LABEL = { spacing: 'Spacing', radius: 'Radius', shadow: 'Shadows', motion: 'Motion and timing', 'font-size': 'Font sizes', other: 'Other' };
+function tokensHTML(t) {
+  if (t && !t.colors && t.colours) { t.colors = t.colours; if (t.icons && t.icons.colours) t.icons.colors = t.icons.colours; }
+  if (!t || !t.colors) return '<p class="small">No token inventory in this run.</p>';
+  const vars = v => (v || []).length ? `<div class="var">${v.map(esc).join('<br>')}</div>` : '<span class="muted">no variable</span>';
+  const colors = t.colors.filter(c => c.hits > 1);
+  const tokened = t.colors.filter(c => (c.variables || []).length).length;
+  const fontRows = (t.fonts || []).map(f => {
+    const sizes = Object.entries(f.sizes || {}).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k]) => k + 'px').join(', ');
+    const weights = Object.keys(f.weights || {}).sort().join(', ');
+    const roles = Object.entries(f.roles || {}).sort((a, b) => b[1] - a[1]).map(([k]) => k).slice(0, 4).join(', ');
+    return `<tr><td><span class="fam">${esc(f.family)}</span> <span class="muted">${f.webfont ? 'webfont' : 'system font'}</span><br><span class="muted">${esc(roles)}${weights ? ' · weights ' + esc(weights) : ''}</span><br><span class="val">${esc(sizes)}</span></td><td>${vars(f.variables)}</td><td class="hits">${f.hits}</td></tr>`;
+  }).join('');
+  const ic = t.icons || {};
+  const libs = (ic.libraries || []).map(l => `<tr><td><span class="fam">${esc(l.name)}</span>${l.weak ? ' <span class="muted">(guessed from generic classes)</span>' : ''}<br><span class="muted">${esc(l.hint || '')}</span></td><td class="hits">${l.count}</td></tr>`).join('');
+  const iconColors = (ic.colors || []).slice(0, 12).map(c => `<tr><td class="c1"><span class="swc" style="background:${esc(c.value)}"></span></td><td><span class="val">${esc(c.value)}</span></td><td>${vars(c.variables)}</td><td class="hits">${c.hits}</td></tr>`).join('');
+  const kinds = t.variablesByKind || {};
+  // Every other variable, grouped by what it holds: spacing, radius, shadow, motion, font size, other.
+  const others = (t.variables || []).filter(v => v.kind !== 'color' && v.kind !== 'font-family');
+  const groups = {};
+  for (const v of others) (groups[v.kind || 'other'] = groups[v.kind || 'other'] || []).push(v);
+  const otherRows = Object.keys(groups).sort((a, b) => (KIND_LABEL[a] || a).localeCompare(KIND_LABEL[b] || b)).map(k => `<tr><td colspan="2" class="kind">${esc(KIND_LABEL[k] || k)} · ${groups[k].length}</td></tr>` + groups[k].map(v => `<tr><td><span class="var">${esc(v.name)}</span></td><td><span class="val">${esc(v.raw)}</span>${v.resolved && v.resolved !== v.raw ? `<br><span class="muted val">= ${esc(v.resolved)}</span>` : ''}</td></tr>`).join('')).join('');
+  const acc = (title, small, body, open) => `<details class="tkacc"${open ? ' open' : ''}><summary><h4>${title} <small>${small}</small></h4></summary><div class="tkbody">${body}</div></details>`;
+  return `
+    <div class="tk-kpis">
+      <div><b>${colors.length}</b><span>colors in use</span></div>
+      <div><b>${(t.variables || []).length}</b><span>CSS variables</span></div>
+      <div><b>${(t.fonts || []).length}</b><span>typefaces</span></div>
+      <div><b style="font-size:13px;line-height:1.3;margin:4px 0">${esc(ic.system || '—')}</b><span>iconography</span></div>
+    </div>
+    ${acc('Color', `${tokened} of ${t.colors.length} values come from a variable`, `<table><tbody>${colors.map(c => `<tr><td class="c1"><span class="swc" style="background:${esc(c.value)}"></span></td><td><span class="val">${esc(c.value)}</span><br><span class="muted">${esc(Object.keys(c.props || {}).join(', '))}</span></td><td>${vars(c.variables)}</td><td class="hits">${c.hits}</td></tr>`).join('') || '<tr><td class="note">No colors measured.</td></tr>'}</tbody></table>`, true)}
+    ${acc('Typography', `${(t.fontFaces || []).length} @font-face rules · ${kinds['font-size'] || 0} size and ${kinds['font-family'] || 0} family variables`, `<table><tbody>${fontRows || '<tr><td class="note">No text measured.</td></tr>'}</tbody></table>`)}
+    ${acc('Iconography', `${ic.inlineSvg || 0} inline SVG · ${ic.sprite || 0} sprite uses · ${ic.svgImg || 0} SVG images${(ic.iconFonts || []).length ? ' · icon font ' + esc(ic.iconFonts.join(', ')) : ''}`, (libs ? `<table><tbody>${libs}</tbody></table>` : `<p class="note">No icon library detected${ic.inlineSvg ? '; icons are inline SVG' : ''}${(ic.spriteFiles || []).length ? ' from ' + esc(ic.spriteFiles.join(', ')) : ''}.</p>`) + (iconColors ? `<table><tbody>${iconColors}</tbody></table>` : ''))}
+    ${acc('Other variables', `${others.length} spacing, radius, shadow, motion and size variables`, `<table><tbody>${otherRows || '<tr><td class="note">None declared.</td></tr>'}</tbody></table>`)}`;
+}
+async function fillTokens(el) {
+  const href = el.dataset.tokens; if (!href || el.dataset.loaded) return;
+  el.dataset.loaded = '1';
+  try { const r = await fetch(href, { cache: 'no-store' }); if (!r.ok) throw new Error(r.status); el.innerHTML = '<h3 class="tkh">Design tokens</h3>' + tokensHTML(await r.json()); }
+  catch (e) { el.innerHTML = '<h3 class="tkh">Design tokens</h3><p class="small">The token file could not be loaded.</p>'; }
+}
+new MutationObserver(() => document.querySelectorAll('.tk[data-tokens]:not([data-loaded])').forEach(fillTokens)).observe(document.getElementById('main'), { childList: true, subtree: true });
 
 /* ---------- previous runs ---------- */
 async function loadRuns() {
@@ -383,8 +451,15 @@ async function loadRuns() {
   if (!ok) { box.innerHTML = ''; $('runs-lead').textContent = 'The list of runs is not available until the service is set up.'; return; }
   if (!d.runs.length) { box.innerHTML = '<p class="small">No scans yet. The first one appears here when it finishes.</p>'; return; }
   const canDelete = service && service.needsCode;
-  box.innerHTML = d.runs.map(r => { const s = r.summary || {}, c = r.checklist || {}; return `<article class="card run"><div><h3>${esc(r.site)}</h3><p class="meta">${esc(r.url)} · ${fmtDate(r.finishedAt)} · ${r.pages} page-width checks · ${esc(r.widths || '')}px · ${esc(r.level || 'AA')}</p><div class="tags"><span class="tag crit">${s.critical || 0} critical</span><span class="tag ser">${s.serious || 0} serious</span><span class="tag">${s.moderate || 0} moderate</span><span class="tag">${s.minor || 0} minor</span><span class="tag fail">${c.fail || 0} failing</span><span class="tag review">${c.review || 0} review</span><span class="tag pass">${c.pass || 0} passing</span></div>${filesHTML(r)}</div>${canDelete ? `<div><button type="button" class="linkbtn danger" data-del="${esc(r.folder)}" aria-label="Delete the run of ${esc(r.site)} from ${esc(fmtDate(r.finishedAt))}">Delete</button></div>` : ''}</article>`; }).join('');
+  box.innerHTML = d.runs.map(r => { const s = r.summary || {}, c = r.checklist || {}; return `<article class="card run"><div><h3>${esc(r.site)}</h3><p class="meta">${esc(r.url)} · ${fmtDate(r.finishedAt)} · ${r.pages} page-width checks · ${esc(r.widths || '')}px · ${esc(r.level || 'AA')}</p><div class="tags"><span class="tag crit">${s.critical || 0} critical</span><span class="tag ser">${s.serious || 0} serious</span><span class="tag">${s.moderate || 0} moderate</span><span class="tag">${s.minor || 0} minor</span><span class="tag fail">${c.fail || 0} failing</span><span class="tag review">${c.review || 0} review</span><span class="tag pass">${c.pass || 0} passing</span></div>${filesHTML(r)}${r.tokens ? `<p class="small" style="margin-top:10px"><button type="button" class="linkbtn" data-tk="${esc(r.folder + '/' + r.tokens)}" aria-expanded="false">Show design tokens</button></p>` : ''}</div>${canDelete ? `<div><button type="button" class="linkbtn danger" data-del="${esc(r.folder)}" aria-label="Delete the run of ${esc(r.site)} from ${esc(fmtDate(r.finishedAt))}">Delete</button></div>` : ''}</article>`; }).join('');
 }
+$('runs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tk]'); if (!b) return;
+  const card = b.closest('.run'); let box = card.querySelector('.tk');
+  if (box) { const open = box.hidden; box.hidden = !open; b.setAttribute('aria-expanded', String(open)); b.textContent = open ? 'Hide design tokens' : 'Show design tokens'; return; }
+  box = document.createElement('div'); box.className = 'tk'; box.dataset.tokens = b.dataset.tk; box.innerHTML = '<h3 class="tkh">Design tokens</h3><p class="small">Loading…</p>';
+  card.appendChild(box); b.setAttribute('aria-expanded', 'true'); b.textContent = 'Hide design tokens'; fillTokens(box);
+});
 $('runs').addEventListener('click', async e => {
   const b = e.target.closest('[data-del]'); if (!b) return;
   const code = $('code').value;
