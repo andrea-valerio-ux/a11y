@@ -21,6 +21,6 @@ return [
 
   // Brakes on the free GitHub minutes: at most this many scans per hour,
   // and at most this many pages per scan.
-  'max_scans_per_hour' => 6,
+  'max_scans_per_hour' => 16,
   'max_pages'          => 5,
 ];
