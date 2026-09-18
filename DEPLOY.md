@@ -10,7 +10,7 @@ site keeps the parts it can do, and GitHub does the heavy part for free:
 
 The scanner's own code does not change. A scan takes 3 to 6 minutes from the click to the report. The free
 allowance for a private repository is 2,000 machine-minutes a month, roughly 400 scans; `api/index.php` has a brake
-(6 scans an hour, 5 pages each, both adjustable) so a busy day cannot burn through it.
+(16 scans an hour, 5 pages each, both adjustable) so a busy day cannot burn through it.
 
 Anyone who can open the page can start a scan unless you set an **access code** in `config.php` (a word people
 must type). Reports are public files under `runs/`, so do not scan sites whose results must stay private, or set
@@ -51,13 +51,18 @@ Copy the token (it starts with `github_pat_`); it is shown once.
 
 cPanel → **Files → FTP Accounts** → Add FTP Account:
 
-- Log in: `a11yruns`. Directory: `public_html/technology/a11y/runs`. Quota: 1000 MB or Unlimited.
-- Create. Under **Configure FTP Client** note the server name (`ftp.andryta.com`) and the full user name, which
-  looks like `a11yruns@andryta.com`.
+- Log in: `a11yruns`. **Directory**: clear whatever cPanel pre-fills and type exactly
+  `public_html/technology/a11y/runs`. The `public_html/` at the start is what puts the folder inside the website;
+  without it the reports land in a folder no browser can reach. Quota: 1000 MB or Unlimited.
+- Create. In the list, hover over the `…` in the path: it must read `/home2/<user>/public_html/technology/a11y/runs`.
+  Under **Configure FTP Client** note the server name (`ftp.andryta.com`) and the full user name, which looks like
+  `a11yruns@andryta.com`.
 
 The account can only write inside `runs/`, so a leaked secret cannot touch the rest of the site.
 
-Then in GitHub: repository → **Settings → Secrets and variables → Actions → New repository secret**, three times:
+Then in GitHub: repository → **Settings → Secrets and variables → Actions** (the **Actions** page, not Codespaces or
+Dependabot; the **Secrets** tab, not Variables) → **New repository secret**. Three separate secrets, each with its
+name in the Name field and only its value in the Secret field:
 
 | Name | Value |
 | --- | --- |
@@ -122,7 +127,8 @@ or `web/api/index.php` change, upload them again.
 | **GitHub did not accept the scan (401)** | The token is wrong or expired | Step 2, paste the new one. |
 | **GitHub did not accept the scan (404)** | Repository name, workflow file or branch in `config.php` is wrong, or the token has no access to the repository | `api/index.php?action=check` names the problem. |
 | **GitHub did not accept the scan (403)** | The token has no **Actions: Read and write** permission | Edit the token's permissions. |
-| Stuck at **Building and uploading** for more than 10 minutes | The scan finished but the FTP upload failed | Open the run in the Actions tab; the "Upload to the website" step shows the FTP error. Usually a wrong `FTP_USER` (it needs the `@andryta.com` part) or password. |
+| Stuck at **Building and uploading** for more than 10 minutes | The scan finished but the reports did not reach `runs/` | Open the run in the Actions tab. Its summary says whether the three secrets were **set** or **missing**; the "Upload to the website" step lists every file it sent and the remote folder afterward. If the step was skipped, the secrets are missing or misnamed. If it succeeded but nothing shows on the page, the FTP account's directory is not `public_html/technology/a11y/runs`. |
+| No live progress during a scan, only the phase list | The progress file cannot reach `runs/_progress/` | Same causes as the row above. |
 | **The scan failed** | Chrome could not load the site, or the site blocks automated visits | The Actions log has the details. Try one page first. |
 | **The hourly limit is used up** | The brake in `config.php` | Wait, or raise `max_scans_per_hour`. |
 | Reports open but no screenshots | The files were edited or served from a cache | Re-run the scan. |
