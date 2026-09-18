@@ -55,8 +55,17 @@ if (fs.existsSync(reportDir)) {
   }
 }
 
+// The design tokens (colors, typefaces, icon system, CSS variables) travel too,
+// so the page can show them next to the reports.
+let tokensFile = null;
+if (fs.existsSync(path.join(runDir, 'tokens.json'))) {
+  fs.copyFileSync(path.join(runDir, 'tokens.json'), path.join(dest, 'tokens.json'));
+  tokensFile = 'tokens.json';
+}
+
 const meta = {
   id: shortId,
+  tokens: tokensFile,
   requestId,
   url: manifest.startUrl,
   site,
