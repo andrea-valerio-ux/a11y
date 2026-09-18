@@ -171,6 +171,26 @@ if ($action === 'status') {
   out(404, ['state' => 'unknown', 'error' => 'No scan with that id.']);
 }
 
+// Delete one finished run. Destructive, so only with the access code: when
+// config.php has none, deleting stays a File Manager job.
+if ($action === 'delete') {
+  if ($method !== 'POST') out(405, ['error' => 'POST only']);
+  $in = json_decode((string) file_get_contents('php://input'), true);
+  if (!is_array($in)) out(400, ['error' => 'bad body']);
+  if ($cfg['access_code'] === '') out(403, ['error' => 'Deleting from the page needs an access code. Set access_code in config.php, then type it in the form.']);
+  if (!hash_equals((string) $cfg['access_code'], (string) ($in['code'] ?? ''))) out(403, ['error' => 'Type the access code (in the scan form) to delete a run.']);
+  $folder = (string) ($in['folder'] ?? '');
+  if (!preg_match('~^runs/([A-Za-z0-9.-]+)/([A-Za-z0-9.-]+)$~', $folder, $m)) out(400, ['error' => 'not a run folder']);
+  $dir = realpath(RUNS_DIR . '/' . $m[1] . '/' . $m[2]);
+  $root = realpath(RUNS_DIR);
+  if (!$dir || !$root || strpos($dir, $root . DIRECTORY_SEPARATOR) !== 0 || !is_file($dir . '/meta.json')) out(404, ['error' => 'no such run']);
+  foreach (array_diff(scandir($dir), ['.', '..']) as $f) @unlink($dir . '/' . $f);
+  @rmdir($dir);
+  $site = dirname($dir);
+  if (count(array_diff(scandir($site), ['.', '..'])) === 0) @rmdir($site);
+  out(200, ['ok' => true, 'removed' => $folder]);
+}
+
 if ($action === 'scan') {
   if ($method !== 'POST') out(405, ['error' => 'POST only']);
   $in = json_decode((string) file_get_contents('php://input'), true);
